@@ -7,10 +7,9 @@ import torch.nn as nn
 # this was chosen over a simpler output head immediately producing logits over every word because embeddings allow for a finer-grained comparison between words
 class PolicyHead(nn.Module):
     
-    # Initializes a PolicyHead with the given input latent dimension (should be same as SharedEncoder output), word embedding dimension, and device
-    def __init__(self, hidden_dim=128, word_embed_dim=16, device=torch.device("cpu")):
+    # Initializes a PolicyHead with the given input latent dimension (should be same as SharedEncoder output), and word embedding dimension
+    def __init__(self, hidden_dim=128, word_embed_dim=16):
         super().__init__()
-        self.device = device
         self.linear = nn.Linear(hidden_dim, word_embed_dim) # linear
 
     # given batched latent vectors from the shared encoder, produces predicted word embeddings, which are then
@@ -20,13 +19,13 @@ class PolicyHead(nn.Module):
     # made in part with generative AI
     def forward(self, h, valid_indices_batch, word_embeddings):
         query = self.linear(h)
-        query = query.clone().detach().requires_grad_(True)  # break all ties, re-enable grad
+        
+        device = h.device # automatically fetch device of hidden vector
 
-        word_embeddings_T = word_embeddings.transpose(0, 1).contiguous().clone().detach()
-        scores = (query @ word_embeddings_T)
+        scores = query @ word_embeddings.T.to(device) # logits: [B, vocab_size]
 
         batch_size, vocab_size = scores.shape
-        mask = torch.ones(batch_size, vocab_size, dtype=torch.bool, device=scores.device)
+        mask = torch.ones(batch_size, vocab_size, dtype=torch.bool, device=device)
         for i, valid_idx in enumerate(valid_indices_batch):
             mask[i, valid_idx] = False
 

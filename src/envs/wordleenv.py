@@ -81,7 +81,7 @@ class WordleEnv:
                 'candidate_indices': [] }
         
         # getting the indices of candidate words in the original word_list
-        candidate_indices = [self.word_to_idx[word] for word in self.word_list ]
+        candidate_indices = [self.word_to_idx[word] for word in self.candidate_words]
         
         return {
             'feedback': self.game.get_feedback(),

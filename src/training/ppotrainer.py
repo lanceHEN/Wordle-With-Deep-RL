@@ -67,7 +67,7 @@ def ppo_update(
     value_loss = F.mse_loss(values, returns)
     
     total_loss = policy_loss + value_loss
-    print(total_loss)
+    #print(total_loss)
     
     if writer: # log the losses to tensorboard, if writer given
         writer.add_scalar("Loss/policy", policy_loss.item(), global_step)

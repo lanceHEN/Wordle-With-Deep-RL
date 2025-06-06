@@ -52,7 +52,7 @@ class WordleEnv:
         # reward
         if self.game.is_game_over():
             if self.game.is_won:
-                reward = 0  # guess is correst
+                reward = 15  # guess is correst
             else:
                 reward = -10  # game is lost
         else:

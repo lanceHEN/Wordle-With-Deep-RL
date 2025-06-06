@@ -6,10 +6,10 @@ import torch.nn as nn
 # this was chosen over a more fine-grained embedding-based output because that would require training word embeddings simultaneously, which can be expensive
 class PolicyHead(nn.Module):
     
-    # Initializes a PolicyHead with the given input latent dimension (should be same as SharedEncoder output), and word embedding dimension
-    def __init__(self, hidden_dim=128, word_embed_dim=16):
+    # Initializes a PolicyHead with the given input latent dimension (should be same as SharedEncoder output), and output dimension
+    def __init__(self, hidden_dim=128, vocab_size=14855):
         super().__init__()
-        self.linear = nn.Linear(hidden_dim, word_embed_dim) # linear
+        self.linear = nn.Linear(hidden_dim, vocab_size) # linear
 
     # given batched latent vectors from the shared encoder, produces logits over every single word (action)
     # which one can softmax over to get prob. dists.

@@ -23,15 +23,21 @@ def load_word_list(path):
     return words
 
 word_list = load_word_list('../data/5letterwords.txt')
-answer_list = load_word_list('../data/5letterwords.txt')
+answer_list = load_word_list('../data/5letteranswers.txt')
 
 #env = WordleEnv(word_list=word_list, answer_list=answer_list)
+
 
 #env.reset()
 #obs, reward, done = env.step("slate")
 
 #valid_indices = obs["valid_indices"]
-#print(valid_indices)
+#print(len(valid_indices))
+
+#obs, reward, done = env.step("droid")
+
+#valid_indices = obs["valid_indices"]
+#print(len(valid_indices))
 
 le = LetterEncoder().to(device)
 oe = ObservationEncoder(le).to(device)
@@ -57,5 +63,5 @@ value_params = shared_params + list(vh.parameters())  # Include value head
 optimizer_policy = torch.optim.Adam(params=policy_params, lr=1e-3)
 optimizer_value = torch.optim.Adam(params=value_params, lr=1e-3)
 
-training_loop(BatchedWordleEnv(word_list, answer_list, batch_size=16), le, oe, se, ph, vh, optimizer_policy, optimizer_value, word_list, answer_list, save_dir="checkpoints/baseline", device=device)
-#evaluate_policy_on_all_answers(BatchedWordleEnv, word_list, answer_list, oe, se, ph, device=device)
+#training_loop(BatchedWordleEnv(word_list, answer_list, batch_size=16), le, oe, se, ph, vh, optimizer_policy, optimizer_value, word_list, answer_list, save_dir="checkpoints/baseline", device=device)
+evaluate_policy_on_all_answers(BatchedWordleEnv, word_list, answer_list, oe, se, ph, device=device)

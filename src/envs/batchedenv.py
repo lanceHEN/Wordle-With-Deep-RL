@@ -7,13 +7,11 @@ class BatchedWordleEnv:
     
     # given an environment class (e.g. WordleEnv), word list, answer list and batch size, produced a BatchedWordleEnv, a batched set of environments
     # with the given number of batches
-    # optionally, allows specification of starting words
-    def __init__(self, word_list, answer_list, batch_size, starting_words=None, env_class=WordleEnv):
+    def __init__(self, word_list, answer_list, batch_size, env_class=WordleEnv):
         self.envs = [env_class(word_list, answer_list) for _ in range(batch_size)]
         self.batch_size = batch_size
         self.word_list = word_list
         self.answer_list = answer_list
-        self.starting_words = starting_words
 
         # store current states
         self.current_obs = [env.reset() for env in self.envs]
@@ -21,9 +19,9 @@ class BatchedWordleEnv:
 
     # resets across each env in the batch, and returns the observations for each
     # if starting words specified, starts each env with the given starting words
-    def reset(self):
+    def reset(self, starting_words):
         if self.starting_words:
-            self.current_obs = [env.reset(self.starting_words[i]) for i, env in enumerate(self.envs)]
+            self.current_obs = [env.reset(starting_words[i]) for i, env in enumerate(self.envs)]
         else:
             self.current_obs = [env.reset() for env in self.envs]
         self.dones = [False] * self.batch_size

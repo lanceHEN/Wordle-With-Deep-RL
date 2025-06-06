@@ -15,7 +15,9 @@ def ppo_update(
     returns,
     old_log_probs,
     clip_epsilon=0.2,
-    device="cpu"
+    device="cpu",
+    writer=None,
+    global_step=None,
 ):
     """
     Performs a single PPO update step over the given trajectory, with the given observations, rewards, etc to batch.
@@ -57,7 +59,7 @@ def ppo_update(
     ratios = torch.exp(taken_log_probs - old_log_probs.detach()) # new vs old
     #print(torch.max(logits, dim=1))
     #print([len(x) for x in valid_indices_batch])
-    print(taken_log_probs)
+    #print(taken_log_probs)
     #print(old_log_probs)
     clipped_ratios = torch.clamp(ratios, 1 - clip_epsilon, 1 + clip_epsilon)
     policy_loss = -torch.min(ratios * advantages, clipped_ratios * advantages).mean()
@@ -66,6 +68,10 @@ def ppo_update(
     
     total_loss = policy_loss + value_loss
     print(total_loss)
+    
+    if writer: # log the losses to tensorboard, if writer given
+        writer.add_scalar("Loss/policy", policy_loss.item(), global_step)
+        writer.add_scalar("Loss/value", value_loss.item(), global_step)
 
     # Backward + optimize
     #torch.autograd.set_detect_anomaly(True) # for debugging

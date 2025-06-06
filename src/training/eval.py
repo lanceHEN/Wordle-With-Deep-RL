@@ -16,7 +16,7 @@ def evaluate_policy_on_all_answers(env_class, word_list, answer_list, observatio
         g_dummy, m_dummy = observation_encoder(dummy_obs)
         
         for batch_start in range(0, total_games, batch_size):
-            print(batch_start)
+            #print(batch_start)
             batch_answers = answer_list[batch_start:batch_start + batch_size]
             #print("before reset")
             #print("before construction")

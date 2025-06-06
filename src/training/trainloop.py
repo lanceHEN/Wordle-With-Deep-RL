@@ -12,8 +12,7 @@ from torch.utils.tensorboard import SummaryWriter
 # Main training loop for PPO applied to Wordle
 # given batched environments, the model architecutre, word list, answer list, optimizers, number of epochs, number of ppo epochs, minibatch size, gamma, clip_epsilon, and device,
 # trains the model for the specified number of epochs, at each epoch collecting trajectories from the batched environments, and applying PPO updates
-# also periodically prints out and saves to tensorboard avergae success rate, and average number of guesses
-# periodically also saves the model, and 
+# also periodically (every eval_and_save_per epochs) prints out and saves to tensorboard avergae success rate, and average number of guesses, and also saves the model
 # made in part with generative AI
 def training_loop(
     batched_env,
@@ -30,6 +29,7 @@ def training_loop(
     log_dir,
     num_epochs=1000,
     ppo_epochs=4,
+    eval_and_save_per=20,
     minibatch_size=32,
     gamma=1.0,
     clip_epsilon=0.2,
@@ -102,7 +102,7 @@ def training_loop(
           
         #continue     
         
-        if epoch % 50 == 0: # evaluate and save state
+        if epoch % eval_and_save_per == 0: # evaluate and save state
             print("evaluating policy on all answers...")
             win_rate, avg_guesses = evaluate_policy_on_all_answers(
             env_class=BatchedWordleEnv,

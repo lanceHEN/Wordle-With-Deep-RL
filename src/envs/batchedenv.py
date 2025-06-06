@@ -19,8 +19,8 @@ class BatchedWordleEnv:
 
     # resets across each env in the batch, and returns the observations for each
     # if starting words specified, starts each env with the given starting words
-    def reset(self, starting_words):
-        if self.starting_words:
+    def reset(self, starting_words=None):
+        if starting_words:
             self.current_obs = [env.reset(starting_words[i]) for i, env in enumerate(self.envs)]
         else:
             self.current_obs = [env.reset() for env in self.envs]

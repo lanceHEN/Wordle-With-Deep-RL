@@ -13,6 +13,7 @@ from training.trainloop import training_loop
 from training.eval import evaluate_policy_on_all_answers
 import torch
 
+
 #torch.autograd.set_detect_anomaly(True)
 
 device = torch.device("mps")
@@ -63,5 +64,5 @@ value_params = shared_params + list(vh.parameters())  # Include value head
 optimizer_policy = torch.optim.Adam(params=policy_params, lr=1e-3)
 optimizer_value = torch.optim.Adam(params=value_params, lr=1e-3)
 
-#training_loop(BatchedWordleEnv(word_list, answer_list, batch_size=16), le, oe, se, ph, vh, optimizer_policy, optimizer_value, word_list, answer_list, save_dir="checkpoints/baseline", device=device)
-evaluate_policy_on_all_answers(BatchedWordleEnv, word_list, answer_list, oe, se, ph, device=device)
+training_loop(BatchedWordleEnv(word_list, answer_list, batch_size=32), le, oe, se, ph, vh, optimizer_policy, optimizer_value, word_list, answer_list, save_dir="checkpoints/baseline", log_dir="runs/baseline", device=device)
+#evaluate_policy_on_all_answers(BatchedWordleEnv, word_list, answer_list, oe, se, ph, device=device)

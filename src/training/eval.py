@@ -5,7 +5,7 @@ from envs.wordleenv import WordleEnv
 # word, including win rate (% of time the answer is found in time) and average guesses
 # does this in batches to speed up computation
 # made with help of generative AI
-def evaluate_policy_on_all_answers(env_class, word_list, answer_list, observation_encoder, shared_encoder, policy_head, batch_size=32, device="cpu"):
+def evaluate_policy_on_all_answers(env_class, word_list, answer_list, word_matrix, observation_encoder, shared_encoder, policy_head, batch_size=256, device="cpu"):
     total_games = len(answer_list)
     total_wins = 0
     total_guesses = []
@@ -55,7 +55,7 @@ def evaluate_policy_on_all_answers(env_class, word_list, answer_list, observatio
     
                 grid_tensor = torch.stack(grid_batch).to(device)
                 meta_tensor = torch.stack(meta_batch).to(device)
-                logits = policy_head(shared_encoder(grid_tensor, meta_tensor), valid_indices_batch)
+                logits = policy_head(shared_encoder(grid_tensor, meta_tensor), valid_indices_batch, word_matrix)
                 actions = torch.argmax(logits, dim=-1).tolist()
 
                 guess_words = [word_list[a] for a in actions]
@@ -67,7 +67,7 @@ def evaluate_policy_on_all_answers(env_class, word_list, answer_list, observatio
                     if not done_flags[i]:
                         guesses[i] += 1
                         rewards[i] = reward_list[i]
-                        if done_list[i] and reward_list[i] == 15:
+                        if done_list[i] and reward_list[i] > 0:
                             won_flags[i] = True
                         done_flags[i] = done_list[i]
 

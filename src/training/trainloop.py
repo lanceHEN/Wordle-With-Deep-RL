@@ -7,6 +7,8 @@ from training.eval import evaluate_policy_on_all_answers
 from envs.batchedenv import BatchedWordleEnv
 import os
 from torch.utils.tensorboard import SummaryWriter
+from collections import deque
+
 
 
 # Main training loop for PPO applied to Wordle
@@ -36,6 +38,7 @@ def training_loop(
     gamma=1.0,
     clip_epsilon=0.2,
     device=torch.device("cpu"),
+    FIFO_Queue=deque(maxlen=20)
 ):
     
     os.makedirs(save_dir, exist_ok=True) # make sure checkpoint dir exists
@@ -53,8 +56,16 @@ def training_loop(
             policy_head,
             value_head,
             gamma=gamma,
-            device=device
+            device=device,
+            FIFO_Queue=FIFO_Queue,
+            use_FIFO_probability=0.2
         )
+
+        # Add hard solutions to FIFO queue
+        # Meaning: words that went unguessed/agent failed
+        for answer, success in zip(traj["envAnswers"], traj["successBools"]):
+            if not success:
+                FIFO_Queue.append(answer)
 
         # Normalize advantages
         advantages_tensor = torch.tensor(traj["advantages"], dtype=torch.float32)

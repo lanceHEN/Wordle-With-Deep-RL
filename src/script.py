@@ -24,6 +24,7 @@ def load_word_list(path):
     return words
 
 #word_list = random.sample(load_word_list('../data/5letteranswers.txt'), 1000)
+word_list = load_word_list('../data/5letterwords.txt')
 answer_list = load_word_list('../data/5letteranswers.txt')
 #answer_list = word_list
 env = WordleEnv(word_list=word_list, answer_list=answer_list)

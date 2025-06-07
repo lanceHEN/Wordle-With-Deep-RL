@@ -18,7 +18,7 @@ class BatchedWordleEnv:
         self.dones = [False] * batch_size
 
     # resets across each env in the batch, and returns the observations for each
-    # if starting words specified, starts each env with the given starting words
+    # if starting words specified, starts each env with those starting words. Goes default if over batch length
     def reset(self, starting_words=None):
         if starting_words:
             self.current_obs = [

@@ -21,7 +21,10 @@ class BatchedWordleEnv:
     # if starting words specified, starts each env with the given starting words
     def reset(self, starting_words=None):
         if starting_words:
-            self.current_obs = [env.reset(starting_words[i]) for i, env in enumerate(self.envs)]
+            self.current_obs = [
+                env.reset(starting_words[i]) if i < len(starting_words) else env.reset()
+                for i, env in enumerate(self.envs)
+            ]
         else:
             self.current_obs = [env.reset() for env in self.envs]
         self.dones = [False] * self.batch_size

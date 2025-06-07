@@ -14,6 +14,7 @@ def ppo_update(
     advantages,
     returns,
     old_log_probs,
+    word_matrix,
     clip_epsilon=0.2,
     device="cpu",
     writer=None,
@@ -49,7 +50,7 @@ def ppo_update(
     h_value = shared_encoder(grids, metas)  # [B, hidden_dim]
     values = value_net(h_value)  # [B]
 
-    logits = policy_net(h_policy, valid_indices_batch)  # [B, vocab_size]
+    logits = policy_net(h_policy, valid_indices_batch, word_matrix)  # [B, vocab_size]
     #print("[ppo_update] after policy_head: query-related logits shape:", logits.shape)
 
     log_probs = F.log_softmax(logits, dim=-1)
@@ -66,7 +67,7 @@ def ppo_update(
 
     value_loss = F.mse_loss(values, returns)
     
-    total_loss = policy_loss + value_loss
+    total_loss = policy_loss + value_loss #add entropy?
     #print(total_loss)
     
     if writer: # log the losses to tensorboard, if writer given

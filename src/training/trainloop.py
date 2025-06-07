@@ -25,9 +25,11 @@ def training_loop(
     optimizer_value,
     word_list,
     answer_list,
+    word_matrix,
     save_dir,
     log_dir,
     num_epochs=1000,
+    start_epoch=0,
     ppo_epochs=4,
     eval_and_save_per=20,
     minibatch_size=32,
@@ -39,11 +41,13 @@ def training_loop(
     os.makedirs(save_dir, exist_ok=True) # make sure checkpoint dir exists
     writer = SummaryWriter(log_dir)
     
-    for epoch in trange(num_epochs, desc="Training"):
+    for epoch in trange(start_epoch, num_epochs, desc="Training"):
         # Collect one full batch of trajectories from the batched environment
         traj = generate_batched_trajectories(
             batched_env,
             word_list,
+            answer_list,
+            word_matrix,
             observation_encoder,
             shared_encoder,
             policy_head,
@@ -94,6 +98,7 @@ def training_loop(
                     adv_batch,
                     ret_batch,
                     logp_batch,
+                    word_matrix,
                     clip_epsilon=clip_epsilon,
                     device=device,
                     writer=writer,
@@ -108,6 +113,7 @@ def training_loop(
             env_class=BatchedWordleEnv,
             word_list=word_list,
             answer_list=answer_list,
+            word_matrix=word_matrix,
             observation_encoder=observation_encoder,
             shared_encoder=shared_encoder,
             policy_head=policy_head,

@@ -1,5 +1,6 @@
 import torch
 from torch.distributions import Categorical
+import random
 
 # made with help of generative AI
 def generate_trajectory(env, word_list, observation_encoder, shared_encoder, policy_head, value_head, device="cpu", gamma=1):
@@ -111,6 +112,8 @@ def compute_advantages(rewards, values, gamma=1, device="cpu"):
 def generate_batched_trajectories(
     batched_env,
     word_list,
+    answer_list,
+    word_matrix,
     observation_encoder,
     shared_encoder,
     policy_head,
@@ -130,7 +133,7 @@ def generate_batched_trajectories(
         A dictionary with everything needed for PPO training - observations, actions, log probs, returns, advantages, and indices of valid words.
     """
     batch_size = batched_env.batch_size
-    obs_list = batched_env.reset()
+    obs_list = batched_env.reset(starting_words = random.sample(answer_list, batch_size)) # require each to be a unique, random answer word
 
     all_obs = [[] for _ in range(batch_size)]
     all_actions = [[] for _ in range(batch_size)]
@@ -146,11 +149,12 @@ def generate_batched_trajectories(
             metas = torch.stack(metas).to(device)
 
             h = shared_encoder(grids, metas)
-            logits = policy_head(h, valid_indices_batch)
+            logits = policy_head(h, valid_indices_batch, word_matrix)
             values = value_head(h).squeeze(-1)
 
             dist = Categorical(logits=logits)
             actions = dist.sample()
+            #actions = torch.argmax(logits, dim=-1)
             log_probs = dist.log_prob(actions)
             words = [word_list[a.item()] for a in actions]
 
@@ -172,6 +176,11 @@ def generate_batched_trajectories(
     for i in range(batch_size):
         rewards = all_rewards[i]
         values = all_values[i]
+        
+        # Skip if no steps were taken
+        if len(values) == 0:
+            continue
+        
         values.append(torch.tensor(0.0, device=device))  # final value = 0
         returns, advantages = compute_advantages(rewards, values, gamma, device=device)
         trajectories["observations"].extend(all_obs[i])

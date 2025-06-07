@@ -119,7 +119,9 @@ def generate_batched_trajectories(
     policy_head,
     value_head,
     gamma=1.0,
-    device="cpu"
+    device="cpu",
+    FIFO_Queue=None,  # FIFO queue for hard solutions
+    use_FIFO_probability=0.0
 ):
     """
     Simulates each episode of Wordle in the given batched_env simultaneously using the current policy.
@@ -133,7 +135,20 @@ def generate_batched_trajectories(
         A dictionary with everything needed for PPO training - observations, actions, log probs, returns, advantages, and indices of valid words.
     """
     batch_size = batched_env.batch_size
+<<<<<<< Updated upstream
     obs_list = batched_env.reset(starting_words = random.sample(answer_list, batch_size)) # require each to be a unique, random answer word
+=======
+
+    #FIFO implentation, for a set probability, portion of the batch will be trained on previously missed words
+    num_hard_words = int(batch_size * use_FIFO_probability)
+    num_hard_words = min(num_hard_words, len(FIFO_Queue))
+    hard_words_sample = random.sample(FIFO_Queue, num_hard_words) if num_hard_words > 0 else []
+    rest = [None] * (batch_size - num_hard_words)
+    starting_words = hard_words_sample + rest
+
+
+    obs_list = batched_env.reset(starting_words) #FIFO startin words, else random 
+>>>>>>> Stashed changes
 
     all_obs = [[] for _ in range(batch_size)]
     all_actions = [[] for _ in range(batch_size)]
@@ -161,17 +176,19 @@ def generate_batched_trajectories(
             next_obs_list, rewards, dones = batched_env.step(words)
 
             for i in range(batch_size):
-                if not dones[i]:
+                if not dones[i]: #if false for done
                     all_obs[i].append(obs_list[i])
                     all_actions[i].append(actions[i].item())
                     all_log_probs[i].append(log_probs[i])
                     all_rewards[i].append(torch.tensor(rewards[i], dtype=torch.float))
                     all_values[i].append(values[i])
+                    #envAnswers[i].append(obs_list[i]["answer"]) 
+                    #successBools[i].append(obs_list[i]["success"]) 
 
             obs_list = next_obs_list
 
     # Compute returns and advantages
-    trajectories = {"observations": [], "actions": [], "log_probs": [], "returns": [], "advantages": []}
+    trajectories = {"observations": [], "actions": [], "log_probs": [], "returns": [], "advantages": [], "envAnswers": [], "successBools": []}
 
     for i in range(batch_size):
         rewards = all_rewards[i]
@@ -188,5 +205,10 @@ def generate_batched_trajectories(
         trajectories["log_probs"].extend(all_log_probs[i])
         trajectories["returns"].extend(returns)
         trajectories["advantages"].extend(advantages)
+
+        # Append the answers and success flags for this trajectory
+        env = batched_env.envs[i]
+        trajectories["envAnswers"].append(env.game.word)
+        trajectories["successBools"].append(env.game.is_won)
 
     return trajectories

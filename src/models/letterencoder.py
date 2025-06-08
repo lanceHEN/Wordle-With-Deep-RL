@@ -15,11 +15,9 @@ class LetterEncoder(nn.Module):
         # letter embeddings (learnable)
         self.letter_embed = nn.Embedding(26, letter_embed_dim)
 
-    # given a single letter, produces its embeddings representation as a torch tensor of dim [self.letter_embed_dim]
-    # letter indexing done with generative AI
-    def forward(self, letter):
+    # given a single letter index, produces its embeddings representation as a torch tensor of dim [self.letter_embed_dim]
+    def forward(self, letter_idx):
         device = self.letter_embed.weight.device # fetch device of embedding weights for consistency
-        letter_idx = ord(letter) - ord('a') # index of letter - assuming lowercase
-        letter_vec = self.letter_embed(torch.tensor(letter_idx, device=device))
+        letter_vec = self.letter_embed(letter_idx.to(device))
         
         return letter_vec

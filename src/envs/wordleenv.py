@@ -2,6 +2,7 @@ import random
 import copy
 from typing import List, Tuple, Optional
 from envs.WordleGame import WordleGame # referring WordleGame class
+import math
 
 class WordleEnv:
     ''' wraps around WordleGame '''
@@ -46,23 +47,30 @@ class WordleEnv:
         feedback = self.game.get_feedback()
         latest_guess, latest_result = feedback[-1]
         
+        prior = len(self.candidate_words) # how many words before the guess
+        
         # filter candidate_words by keeping candidates consistent w/ that feedback
         self._filter_cands(latest_guess, latest_result)
+        
+        posterior = len(self.candidate_words) # how many words after the guess
         
         # reward
         if self.game.is_game_over():
             if self.game.is_won:
-                reward = 10 - self.game.num_guesses  # guess is correst
+                reward = 30  # guess is correst
             else:
-                reward = -6  # game is lost
+                reward = -10  # game is lost
         else:
-            reward = -1  # guess is incorrect
+            info_gain = math.log(prior) - math.log(posterior)
+            normalized_info_gain = info_gain / math.log(prior) # between 0 and 1
+            reward = normalized_info_gain*0.1 - 1 # guess is incorrect
         
         # return obs and done
         obs = self._get_obs()
         done = self.game.is_game_over()
         
         return obs, reward, done
+    
     
     # could create a mask instead (?)
     def _get_obs(self):

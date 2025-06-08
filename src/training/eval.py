@@ -5,7 +5,7 @@ from envs.wordleenv import WordleEnv
 # word, including win rate (% of time the answer is found in time) and average guesses
 # does this in batches to speed up computation
 # made with help of generative AI
-def evaluate_policy_on_all_answers(env_class, word_list, answer_list, word_matrix, observation_encoder, shared_encoder, policy_head, batch_size=256, device="cpu"):
+def evaluate_policy_on_all_answers(env_class, word_list, answer_list, word_matrix, observation_encoder, shared_encoder, policy_head, batch_size=512, device="cpu"):
     total_games = len(answer_list)
     total_wins = 0
     total_guesses = []
@@ -67,7 +67,7 @@ def evaluate_policy_on_all_answers(env_class, word_list, answer_list, word_matri
                     if not done_flags[i]:
                         guesses[i] += 1
                         rewards[i] = reward_list[i]
-                        if done_list[i] and reward_list[i] > 0:
+                        if done_list[i] and reward_list[i] == 30: # did they win
                             won_flags[i] = True
                         done_flags[i] = done_list[i]
 

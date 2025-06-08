@@ -31,17 +31,13 @@ def ppo_update(
     optimizer_policy.zero_grad(set_to_none=True)
     optimizer_value.zero_grad(set_to_none=True)
     
-    # Encode all observations
-    grids, metas, valid_indices_batch = [], [], []
-    for obs in observations:
-        grid, meta = observation_encoder(obs)
-        grids.append(grid)
-        metas.append(meta)
-        valid_indices_batch.append(obs["valid_indices"])
+    # Encode all observations        
+    valid_indices_batch = [obs["valid_indices"] for obs in observations]
+    grids, metas = observation_encoder(observations)
 
     # Turn lists into tensors
-    grids = torch.stack(grids).to(device)
-    metas = torch.stack(metas).to(device)
+    grids = grids.to(device)
+    metas = metas.to(device)
     actions = torch.as_tensor(actions, device=device)
     advantages = torch.tensor(advantages, dtype=torch.float32, device=device)
     returns = torch.tensor(returns, dtype=torch.float32, device=device)

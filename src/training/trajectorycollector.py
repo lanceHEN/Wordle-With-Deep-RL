@@ -159,9 +159,10 @@ def generate_batched_trajectories(
     with torch.no_grad():
         while not batched_env.all_done():
             # Vectorized observation encoding
-            grids, metas, valid_indices_batch = zip(*[observation_encoder(obs) + (obs["valid_indices"],) for obs in obs_list])
-            grids = torch.stack(grids).to(device)
-            metas = torch.stack(metas).to(device)
+            valid_indices_batch = [obs["valid_indices"] for obs in obs_list]
+            grids, metas = observation_encoder(obs_list)
+            grids = grids.to(device)
+            metas = metas.to(device)
 
             h = shared_encoder(grids, metas)
             logits = policy_head(h, valid_indices_batch, word_matrix)

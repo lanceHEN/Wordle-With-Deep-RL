@@ -9,7 +9,7 @@ import torch.nn as nn
 class PolicyHead(nn.Module):
     
     # Initializes a PolicyHead with the given input latent dimension (should be same as SharedEncoder output), and output dimension
-    def __init__(self, hidden_dim=128, vocab_size=14855):
+    def __init__(self, hidden_dim=256):
         super().__init__()
         self.linear = nn.Linear(hidden_dim, 5*26) # linear
 

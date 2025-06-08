@@ -6,7 +6,7 @@ import torch.nn as nn
 # this is a simple MLP with one linear layer - scalar output
 class ValueHead(nn.Module):
     
-    def __init__(self, hidden_dim=128):
+    def __init__(self, hidden_dim=256):
         super().__init__()
         self.value = nn.Linear(hidden_dim, 1)
      

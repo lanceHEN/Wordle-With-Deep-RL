@@ -1,5 +1,6 @@
 import torch
 import torch.nn.functional as F
+from torch.distributions import Categorical
 
 # made in part with generative AI
 def ppo_update(
@@ -16,6 +17,7 @@ def ppo_update(
     old_log_probs,
     word_matrix,
     clip_epsilon=0.2,
+    entropy_coef = 0.01,
     device="cpu",
     writer=None,
     global_step=None,
@@ -52,6 +54,9 @@ def ppo_update(
 
     logits = policy_net(h_policy, valid_indices_batch, word_matrix)  # [B, vocab_size]
     #print("[ppo_update] after policy_head: query-related logits shape:", logits.shape)
+    
+    dist = Categorical(logits=logits)
+    entropy = dist.entropy().mean() # get entropy to encourage more exploratoin
 
     log_probs = F.log_softmax(logits, dim=-1)
     taken_log_probs = log_probs[torch.arange(len(actions), device=device), actions]
@@ -67,7 +72,7 @@ def ppo_update(
 
     value_loss = F.mse_loss(values, returns)
     
-    total_loss = policy_loss + value_loss #add entropy?
+    total_loss = policy_loss + value_loss - entropy_coef * entropy
     #print(total_loss)
     
     if writer: # log the losses to tensorboard, if writer given

@@ -38,7 +38,11 @@ def training_loop(
     gamma=1.0,
     clip_epsilon=0.2,
     device=torch.device("cpu"),
-    FIFO_Queue=deque(maxlen=20)
+    fifo_queue=deque(maxlen=20),
+    fifo_threshold=5,
+    fifo_percentage=0.2,
+    scheduler_policy=None,
+    scheduler_value=None
 ):
     
     os.makedirs(save_dir, exist_ok=True) # make sure checkpoint dir exists
@@ -57,15 +61,17 @@ def training_loop(
             value_head,
             gamma=gamma,
             device=device,
-            FIFO_Queue=FIFO_Queue,
-            use_FIFO_probability=0.2
+            fifo_queue=fifo_queue,
+            fifo_percentage=fifo_percentage
         )
 
         # Add hard solutions to FIFO queue
-        # Meaning: words that went unguessed/agent failed
-        for answer, success in zip(traj["envAnswers"], traj["successBools"]):
-            if not success:
-                FIFO_Queue.append(answer)
+        # Meaning: words that took at least fifo_threshold guesses, whether they were found or not
+        for answer, guesses in zip(traj["envAnswers"], traj["numGuesses"]):
+            if guesses >= fifo_threshold: # at least fifo_threshold guesses
+                fifo_queue.append(answer)
+                
+        print(fifo_queue)
 
         # Normalize advantages
         advantages_tensor = torch.tensor(traj["advantages"], dtype=torch.float32)
@@ -116,7 +122,12 @@ def training_loop(
                     global_step=epoch * ppo_epochs + ppo_epoch
                 )
           
-        #continue     
+        #continue   
+        # update schedulers  
+        if scheduler_policy:
+            scheduler_policy.step()
+        if scheduler_value:
+            scheduler_value.step()
         
         if epoch % eval_and_save_per == 0: # evaluate and save state
             print("evaluating policy on all answers...")
@@ -142,6 +153,8 @@ def training_loop(
                 "value_head": value_head.state_dict(),
                 "optimizer_policy": optimizer_policy.state_dict(),
                 "optimizer_value": optimizer_value.state_dict(),
+                "scheduler_policy": scheduler_policy.state_dict(),
+                "scheduler_value": scheduler_value.state_dict(),
                 "epoch": epoch,
             }
             torch.save(checkpoint, os.path.join(save_dir, f"checkpoint_epoch_{epoch}.pth"))

@@ -1,6 +1,7 @@
 import torch
 from torch.distributions import Categorical
 import random
+import itertools
 
 # made with help of generative AI
 def generate_trajectory(env, word_list, observation_encoder, shared_encoder, policy_head, value_head, device="cpu", gamma=1):
@@ -120,8 +121,8 @@ def generate_batched_trajectories(
     value_head,
     gamma=1.0,
     device="cpu",
-    FIFO_Queue=None,  # FIFO queue for hard solutions
-    use_FIFO_probability=0.0
+    fifo_queue=None,  # FIFO queue for hard solutions
+    fifo_percentage=0.0
 ):
     """
     Simulates each episode of Wordle in the given batched_env simultaneously using the current policy.
@@ -135,20 +136,19 @@ def generate_batched_trajectories(
         A dictionary with everything needed for PPO training - observations, actions, log probs, returns, advantages, and indices of valid words.
     """
     batch_size = batched_env.batch_size
-<<<<<<< Updated upstream
-    obs_list = batched_env.reset(starting_words = random.sample(answer_list, batch_size)) # require each to be a unique, random answer word
-=======
 
-    #FIFO implentation, for a set probability, portion of the batch will be trained on previously missed words
-    num_hard_words = int(batch_size * use_FIFO_probability)
-    num_hard_words = min(num_hard_words, len(FIFO_Queue))
-    hard_words_sample = random.sample(FIFO_Queue, num_hard_words) if num_hard_words > 0 else []
-    rest = [None] * (batch_size - num_hard_words)
+    #FIFO implentation, for the given percentage, portion of the batch will be trained on previously missed words
+    num_hard_words = int(batch_size * fifo_percentage)
+    num_hard_words = min(num_hard_words, len(fifo_queue))
+    # Grab the oldest words (FIFO order)
+    hard_words_sample = []
+    for _ in range(num_hard_words):
+        hard_words_sample.append(fifo_queue.popleft())
+    available_words = list(set(answer_list) - set(hard_words_sample))
+    rest = random.sample(available_words, batch_size - num_hard_words)
     starting_words = hard_words_sample + rest
 
-
     obs_list = batched_env.reset(starting_words) #FIFO startin words, else random 
->>>>>>> Stashed changes
 
     all_obs = [[] for _ in range(batch_size)]
     all_actions = [[] for _ in range(batch_size)]
@@ -188,7 +188,7 @@ def generate_batched_trajectories(
             obs_list = next_obs_list
 
     # Compute returns and advantages
-    trajectories = {"observations": [], "actions": [], "log_probs": [], "returns": [], "advantages": [], "envAnswers": [], "successBools": []}
+    trajectories = {"observations": [], "actions": [], "log_probs": [], "returns": [], "advantages": [], "envAnswers": [], "successBools": [], "numGuesses": []}
 
     for i in range(batch_size):
         rewards = all_rewards[i]
@@ -206,9 +206,10 @@ def generate_batched_trajectories(
         trajectories["returns"].extend(returns)
         trajectories["advantages"].extend(advantages)
 
-        # Append the answers and success flags for this trajectory
+        # Append the answers, success flag, an guesses for this trajectory
         env = batched_env.envs[i]
         trajectories["envAnswers"].append(env.game.word)
         trajectories["successBools"].append(env.game.is_won)
+        trajectories["numGuesses"].append(len(rewards))  # number of guesses = number of rewards
 
     return trajectories

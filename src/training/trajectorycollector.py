@@ -31,7 +31,7 @@ def generate_trajectory(env, word_list, actor_critic, word_matrix, device="cpu",
             
         
             valid_indices = obs["valid_indices"]
-            scores, value = actor_critic([obs], [valid_indices], word_matrix)
+            scores, value = actor_critic([obs], word_matrix)
             dist = Categorical(logits=scores)
             # Choose an action
             action_idx = dist.sample()
@@ -147,8 +147,7 @@ def generate_batched_trajectories(
     with torch.no_grad():
         while not batched_env.all_done():
             # Vectorized observation encoding
-            valid_indices_batch = [obs["valid_indices"] for obs in obs_list]
-            logits, values = actor_critic(obs_list, valid_indices_batch, word_matrix)
+            logits, values = actor_critic(obs_list, word_matrix)
 
             dist = Categorical(logits=logits)
             actions = dist.sample()

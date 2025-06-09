@@ -3,7 +3,7 @@ import torch.nn as nn
 from models.obssharedwrapper import ObservationSharedWrapper
 
 # Wrapper that takes in every component of the model architecture into one class
-# Given an observation batch, valid indices, and word encodings, produces two outputs:
+# Given an observation batch, and word encodings, produces two outputs:
 # 1. Logits over each action (word), i.e. the policy output
 # 2. Value prediction, i.e. the value output
 class WordleActorCritic(nn.Module):
@@ -13,7 +13,11 @@ class WordleActorCritic(nn.Module):
         self.policy_head = policy_head
         self.value_head = value_head
 
-    def forward(self, obs_batch, valid_indices_batch, word_matrix):
+    # Given an observation batch, and word encodings, produces two outputs:
+    # 1. Logits over each action (word), i.e. the policy output
+    # 2. Value prediction, i.e. the value output
+    def forward(self, obs_batch, word_matrix):
+        valid_indices_batch = [obs["valid_indices"] for obs in obs_batch]
         h = self.obs_shared(obs_batch)  # [B, hidden_dim]
         logits = self.policy_head(h, valid_indices_batch, word_matrix)  # [B, V]
         values = self.value_head(h).squeeze(-1)  # [B]

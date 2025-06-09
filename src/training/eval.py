@@ -32,12 +32,8 @@ def evaluate_policy_on_all_answers(env_class, word_list, answer_list, word_matri
                 if all(done_flags):
                     break
 
-                # Just directly encode all observations (including done ones)
-                encoded_grid, meta_tensor = actor_critic.obs_shared.observation_encoder(obs_list)
-                h = actor_critic.obs_shared.shared_encoder(encoded_grid.to(device), meta_tensor.to(device))
-
                 # Compute logits
-                logits = actor_critic.policy_head(h, [obs["valid_indices"] for obs in obs_list], word_matrix)
+                logits, _ = actor_critic(obs_list, word_matrix)
                 actions = torch.argmax(logits, dim=-1).tolist()
 
                 # Get the guessed words

@@ -28,9 +28,6 @@ def ppo_update(
     optimizer_policy.zero_grad(set_to_none=True)
     optimizer_value.zero_grad(set_to_none=True)
     
-    # Encode all observations        
-    valid_indices_batch = [obs["valid_indices"] for obs in observations]
-
     # Turn lists into tensors
     actions = torch.as_tensor(actions, device=device)
     advantages = torch.tensor(advantages, dtype=torch.float32, device=device)
@@ -38,7 +35,7 @@ def ppo_update(
     old_log_probs = torch.stack(old_log_probs).to(device)
 
     # Forward pass
-    logits, values = actor_critic(observations, valid_indices_batch, word_matrix)
+    logits, values = actor_critic(observations, word_matrix)
     #print("[ppo_update] after policy_head: query-related logits shape:", logits.shape)
     
     dist = Categorical(logits=logits)
@@ -50,7 +47,6 @@ def ppo_update(
     # PPO loss
     ratios = torch.exp(taken_log_probs - old_log_probs.detach()) # new vs old
     #print(torch.max(logits, dim=1))
-    #print([len(x) for x in valid_indices_batch])
     #print(taken_log_probs)
     #print(old_log_probs)
     clipped_ratios = torch.clamp(ratios, 1 - clip_epsilon, 1 + clip_epsilon)

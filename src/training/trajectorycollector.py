@@ -113,7 +113,8 @@ def generate_batched_trajectories(
     fifo_percentage=0.0
 ):
     """
-    Simulates each episode of Wordle in the given batched_env simultaneously using the current policy.
+    Simulates each episode of Wordle in the given batched_env simultaneously using the current policy. Includes a FIFO queue from which to take fifo_percentage*batch_size
+    challenging words, to boost performance on those words through concentrated training.
 
     At each step:
     - Encodes the observations.
@@ -122,10 +123,11 @@ def generate_batched_trajectories(
     
     Returns:
         A dictionary with everything needed for PPO training - observations, actions, log probs, returns, advantages, and indices of valid words.
+        For maintaining the FIFO queue, also includes the answers (secret words) to each game in the environments, whether they were won, and the number of guesses taken.
     """
     batch_size = batched_env.batch_size
 
-    #FIFO implentation, for the given percentage, portion of the batch will be trained on previously missed words
+    #FIFO implamentation, for the given percentage, portion of the batch will be trained on previously missed words
     num_hard_words = int(batch_size * fifo_percentage)
     num_hard_words = min(num_hard_words, len(fifo_queue))
     # Grab the oldest words (FIFO order)
@@ -136,7 +138,7 @@ def generate_batched_trajectories(
     rest = random.sample(available_words, batch_size - num_hard_words)
     starting_words = hard_words_sample + rest
 
-    obs_list = batched_env.reset(starting_words) #FIFO startin words, else random 
+    obs_list = batched_env.reset(starting_words) #FIFO starting words, else randomized
 
     all_obs = [[] for _ in range(batch_size)]
     all_actions = [[] for _ in range(batch_size)]
@@ -188,10 +190,10 @@ def generate_batched_trajectories(
         trajectories["returns"].extend(returns)
         trajectories["advantages"].extend(advantages)
 
-        # Append the answers, success flag, an guesses for this trajectory
+        # Append the answers, success flag, and guesses for this trajectory
         env = batched_env.envs[i]
-        trajectories["envAnswers"].append(env.game.word)
-        trajectories["successBools"].append(env.game.is_won)
-        trajectories["numGuesses"].append(len(rewards))  # number of guesses = number of rewards
+        trajectories["env_answers"].append(env.game.word)
+        trajectories["success_bools"].append(env.game.is_won)
+        trajectories["num_guesses"].append(len(rewards))  # number of guesses = number of rewards
 
     return trajectories

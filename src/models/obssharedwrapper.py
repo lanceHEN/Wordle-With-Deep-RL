@@ -5,6 +5,7 @@ import torch.nn as nn
 # This can then be combined with either a PolicyHead or ValueHead.
 class ObservationSharedWrapper(nn.Module):
     
+    # given an ObservationEncoder and SharedEncoder, produces an ObservationSharedWrapper
     def __init__(self, observation_encoder, shared_encoder):
         super().__init__()
         self.observation_encoder = observation_encoder

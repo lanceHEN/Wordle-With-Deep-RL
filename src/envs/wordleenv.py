@@ -1,24 +1,22 @@
 import random
 import copy
 from typing import List, Tuple, Optional
-from envs.WordleGame import WordleGame # referring WordleGame class
-import math
+from wordle_game import WordleGame # referring WordleGame class
 
 class WordleEnv:
     ''' wraps around WordleGame '''
     
-    def __init__(self, word_list, answer_list):
+    def __init__(self, word_list: Optional[List[str]] = None, answer_list: Optional[List[str]] = None):
         '''
         initializes wordle environment
         Args:
-            word_list: list of valid guesses
-            answer_list: list of possible secret words
+            word_list: list of valid guesses (None by default)
+            answer_list: list of possible secret words (None by default)
         '''
         self.word_list = word_list
         self.answer_list = answer_list
         self.game = None
         self.candidate_words = []
-        self.word_to_idx = {word: i for i, word in enumerate(word_list)}
     
     def reset(self, word: Optional[str] = None):
         '''
@@ -28,7 +26,7 @@ class WordleEnv:
         returns:
             initial obs
         '''
-        self.game = WordleGame(self.word_list, self.answer_list, word=word)
+        self.game = WordleGame(self.word_list, self.answer_list, word)
         self.candidate_words = list(self.word_list)
         return self._get_obs()
     
@@ -47,30 +45,23 @@ class WordleEnv:
         feedback = self.game.get_feedback()
         latest_guess, latest_result = feedback[-1]
         
-        prior = len(self.candidate_words) # how many words before the guess
-        
         # filter candidate_words by keeping candidates consistent w/ that feedback
         self._filter_cands(latest_guess, latest_result)
         
-        posterior = len(self.candidate_words) # how many words after the guess
-        
         # reward
         if self.game.is_game_over():
-            if self.game.is_won:
-                reward = 20  # guess is correst
+            if self.game.is_game_won():
+                reward = 0  # guess is correst
             else:
                 reward = -10  # game is lost
         else:
-            info_gain = math.log(prior) - math.log(posterior)
-            normalized_info_gain = info_gain / math.log(prior) # between 0 and 1
-            reward = normalized_info_gain*0.1 - 1 # guess is incorrect
+            reward = -1  # guess is incorrect
         
         # return obs and done
         obs = self._get_obs()
         done = self.game.is_game_over()
         
         return obs, reward, done
-    
     
     # could create a mask instead (?)
     def _get_obs(self):
@@ -89,12 +80,15 @@ class WordleEnv:
                 'candidate_indices': [] }
         
         # getting the indices of candidate words in the original word_list
-        candidate_indices = [self.word_to_idx[word] for word in self.candidate_words]
+        candidate_indices = []
+        for word in self.candidate_words:
+            if word in self.word_list:
+                candidate_indices.append(self.word_list.index(word))
         
         return {
             'feedback': self.game.get_feedback(),
             'turn_number': self.game.num_guesses,
-            'valid_indices': candidate_indices }
+            'candidate_indices': candidate_indices }
     
     # addt'l to methods, called prev
     def _filter_cands(self, guess: str, result: List[str]):

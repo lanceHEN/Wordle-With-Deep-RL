@@ -1,6 +1,6 @@
 import torch
 from tqdm import trange
-from training.trajectorycollector import generate_trajectory, generate_batched_trajectories
+from training.trajectorycollector import generate_batched_trajectories
 from training.ppotrainer import ppo_update
 import random
 from training.eval import evaluate_policy_on_all_answers
@@ -12,35 +12,34 @@ from collections import deque
 
 
 # Main training loop for PPO applied to Wordle
-# given batched environments, the model, word list, answer list, optimizers, number of epochs, number of ppo epochs, minibatch size, gamma, clip_epsilon, and device,
 # trains the model for the specified number of epochs, at each epoch collecting trajectories from the batched environments, and applying PPO updates
-# also periodically (every eval_and_save_per epochs) prints out and saves to tensorboard avergae success rate, and average number of guesses, and also saves the model
+# also periodically (every eval_and_save_per epochs) prints out and saves to tensorboard the success rate, and average number of guesses, and also saves the model
 # made in part with generative AI
 def training_loop(
-    batched_env,
-    actor_critic,
-    optimizer_policy,
-    optimizer_value,
-    word_list,
-    answer_list,
-    word_matrix,
-    save_dir,
-    log_dir,
-    num_epochs=1000,
-    start_epoch=0,
-    ppo_epochs=4,
-    eval_and_save_per=20,
-    minibatch_size=256,
-    gamma=1.0,
-    clip_epsilon=0.2,
-    entropy_coef=0.01,
-    entropy_decay=0.95,
-    device=torch.device("cpu"),
-    fifo_queue=deque(maxlen=20),
-    fifo_threshold=5,
-    fifo_percentage=0.2,
-    scheduler_policy=None,
-    scheduler_value=None
+    batched_env, # the batched wordle environments, as a BatchedWordleEnv
+    actor_critic, # the wrapped model architecture, as a WordleActorCritic
+    optimizer_policy, # optimizer for the policy network
+    optimizer_value, # optimizer for the value network
+    word_list, # list of all words that can be used as guesses
+    answer_list, # list of all words that can be used as answers
+    word_matrix, # one hot embeddings for every word in word_list, as a [len(word_list), 130] torch tensor
+    save_dir, # directory to save the model parameters
+    log_dir, # directory to save tensorboard logs
+    num_epochs=1000, # number of overall epochs
+    start_epoch=0, # epoch to start (useful for resuming training)
+    ppo_epochs=4, # how many ppo epochs to run on a given set of observations
+    eval_and_save_per=20, # how often, in # epochs, to evaluate model performance on all words in answer_list and save the state
+    minibatch_size=256, # how many steps to consider at once in the PPO update
+    gamma=1.0, # discount factor 
+    clip_epsilon=0.2, # how tightly to clip the probability ratio for PPO
+    entropy_coef=0.01, # coefficient for entropy in model loss - the higher, the more it is encouraged to have more balanced probabilites, encouraging exploration
+    entropy_decay=0.95, # the rate at which to decay entropy_coef, applied at the end of each overall epoch
+    device=torch.device("cpu"), # device
+    fifo_queue=deque(maxlen=20), # size of the FIFO queue to store challenging words
+    fifo_threshold=5, # minimum number of required guesses to add a word to the FIFO queue
+    fifo_percentage=0.2, # percentage of words in the environment that should be devoted to FIFO words
+    scheduler_policy=None, # optional scheduler for policy optimizer
+    scheduler_value=None# optional scheduler for value optimizer
 ):
     
     os.makedirs(save_dir, exist_ok=True) # make sure checkpoint dir exists
@@ -66,14 +65,14 @@ def training_loop(
             if guesses >= fifo_threshold: # at least fifo_threshold guesses
                 fifo_queue.append(answer)
                 
-        print(fifo_queue)
+        #print("FIFO queue:", fifo_queue) # helpful to print to monitor progress on reducing guesses
 
-        # Normalize advantages
+        # Normalize advantages for more stable PPO updates
         advantages_tensor = torch.tensor(traj["advantages"], dtype=torch.float32)
         mean, std = advantages_tensor.mean(), advantages_tensor.std()
         traj["advantages"] = [(a - mean) / (std + 1e-8) for a in traj["advantages"]]
 
-        # Create dataset
+        # Create dataset for PPO
         dataset = list(zip(
             traj["observations"],
             traj["actions"],
@@ -115,10 +114,10 @@ def training_loop(
                     global_step=epoch * ppo_epochs + ppo_epoch
                 )
                 
-        entropy_coef *= entropy_decay
+        entropy_coef *= entropy_decay # update entropy
           
         #continue   
-        # update schedulers  
+        # update schedulers
         if scheduler_policy:
             scheduler_policy.step()
         if scheduler_value:

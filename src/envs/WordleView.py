@@ -1,7 +1,11 @@
 from WordleGame import WordleGame
-from LoadList import load_word_list
 import pygame
 import sys
+import os
+
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+from utils.LoadList import load_word_list
+
 
 pygame.init()
 

@@ -7,12 +7,12 @@ import math
 class WordleEnv:
     ''' wraps around WordleGame '''
     
-    def __init__(self, word_list: Optional[List[str]] = None, answer_list: Optional[List[str]] = None):
+    def __init__(self, word_list, answer_list):
         '''
         initializes wordle environment
         Args:
-            word_list: list of valid guesses (None by default)
-            answer_list: list of possible secret words (None by default)
+            word_list: list of valid guesses
+            answer_list: list of possible secret words
         '''
         self.word_list = word_list
         self.answer_list = answer_list
@@ -57,7 +57,7 @@ class WordleEnv:
         # reward
         if self.game.is_game_over():
             if self.game.is_won:
-                reward = 30  # guess is correst
+                reward = 20  # guess is correst
             else:
                 reward = -10  # game is lost
         else:

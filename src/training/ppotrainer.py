@@ -4,10 +4,7 @@ from torch.distributions import Categorical
 
 # made in part with generative AI
 def ppo_update(
-    observation_encoder,
-    shared_encoder,
-    policy_net,
-    value_net,
+    actor_critic,
     optimizer_policy,
     optimizer_value,
     observations,
@@ -33,22 +30,15 @@ def ppo_update(
     
     # Encode all observations        
     valid_indices_batch = [obs["valid_indices"] for obs in observations]
-    grids, metas = observation_encoder(observations)
 
     # Turn lists into tensors
-    grids = grids.to(device)
-    metas = metas.to(device)
     actions = torch.as_tensor(actions, device=device)
     advantages = torch.tensor(advantages, dtype=torch.float32, device=device)
     returns = torch.tensor(returns, dtype=torch.float32, device=device)
     old_log_probs = torch.stack(old_log_probs).to(device)
 
     # Forward pass
-    h_policy = shared_encoder(grids, metas)  # [B, hidden_dim]
-    h_value = shared_encoder(grids, metas)  # [B, hidden_dim]
-    values = value_net(h_value)  # [B]
-
-    logits = policy_net(h_policy, valid_indices_batch, word_matrix)  # [B, vocab_size]
+    logits, values = actor_critic(observations, valid_indices_batch, word_matrix)
     #print("[ppo_update] after policy_head: query-related logits shape:", logits.shape)
     
     dist = Categorical(logits=logits)
@@ -66,7 +56,7 @@ def ppo_update(
     clipped_ratios = torch.clamp(ratios, 1 - clip_epsilon, 1 + clip_epsilon)
     policy_loss = -torch.min(ratios * advantages, clipped_ratios * advantages).mean()
 
-    value_loss = F.mse_loss(values, returns)
+    value_loss = F.mse_loss(values.view(-1), returns.view(-1))
     
     total_loss = policy_loss + value_loss - entropy_coef * entropy
     #print(total_loss)

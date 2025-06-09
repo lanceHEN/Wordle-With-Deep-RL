@@ -4,7 +4,7 @@ import random
 import itertools
 
 # made with help of generative AI
-def generate_trajectory(env, word_list, observation_encoder, shared_encoder, policy_head, value_head, device="cpu", gamma=1):
+def generate_trajectory(env, word_list, actor_critic, word_matrix, device="cpu", gamma=1):
     """
     Simulates one episode of Wordle using the current policy.
 
@@ -28,19 +28,10 @@ def generate_trajectory(env, word_list, observation_encoder, shared_encoder, pol
 
     with torch.no_grad(): # not training during collection
         while not done:
-            # Encode observation
-            grid_tensor, meta_tensor = observation_encoder(obs)
-            grid_tensor = grid_tensor.to(device)
-            meta_tensor = meta_tensor.to(device)
-
-            # get latent state
-            h_policy = shared_encoder(grid_tensor.unsqueeze(0), meta_tensor.unsqueeze(0))
-            h_value = shared_encoder(grid_tensor.unsqueeze(0), meta_tensor.unsqueeze(0))
-
-            # Get valid action logits (from dot product )
+            
         
             valid_indices = obs["valid_indices"]
-            scores = policy_head(h_policy, [valid_indices]) # logits for all guessses - [1, vocab_size]
+            scores, value = actor_critic([obs], [valid_indices], word_matrix)
             dist = Categorical(logits=scores)
             # Choose an action
             action_idx = dist.sample()
@@ -52,7 +43,7 @@ def generate_trajectory(env, word_list, observation_encoder, shared_encoder, pol
             # Step the environment
             next_obs, reward, done = env.step(action_word)
 
-            value = value_head(h_value).squeeze() # get predicted value for state
+            value = value.squeeze() # get predicted value for state
 
             # Store trajectory
             observations.append(obs)
@@ -115,10 +106,7 @@ def generate_batched_trajectories(
     word_list,
     answer_list,
     word_matrix,
-    observation_encoder,
-    shared_encoder,
-    policy_head,
-    value_head,
+    actor_critic,
     gamma=1.0,
     device="cpu",
     fifo_queue=None,  # FIFO queue for hard solutions
@@ -160,13 +148,7 @@ def generate_batched_trajectories(
         while not batched_env.all_done():
             # Vectorized observation encoding
             valid_indices_batch = [obs["valid_indices"] for obs in obs_list]
-            grids, metas = observation_encoder(obs_list)
-            grids = grids.to(device)
-            metas = metas.to(device)
-
-            h = shared_encoder(grids, metas)
-            logits = policy_head(h, valid_indices_batch, word_matrix)
-            values = value_head(h).squeeze(-1)
+            logits, values = actor_critic(obs_list, valid_indices_batch, word_matrix)
 
             dist = Categorical(logits=logits)
             actions = dist.sample()

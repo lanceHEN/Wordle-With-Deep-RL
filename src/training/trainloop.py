@@ -12,17 +12,13 @@ from collections import deque
 
 
 # Main training loop for PPO applied to Wordle
-# given batched environments, the model architecutre, word list, answer list, optimizers, number of epochs, number of ppo epochs, minibatch size, gamma, clip_epsilon, and device,
+# given batched environments, the model, word list, answer list, optimizers, number of epochs, number of ppo epochs, minibatch size, gamma, clip_epsilon, and device,
 # trains the model for the specified number of epochs, at each epoch collecting trajectories from the batched environments, and applying PPO updates
 # also periodically (every eval_and_save_per epochs) prints out and saves to tensorboard avergae success rate, and average number of guesses, and also saves the model
 # made in part with generative AI
 def training_loop(
     batched_env,
-    letter_encoder,
-    observation_encoder,
-    shared_encoder,
-    policy_head,
-    value_head,
+    actor_critic,
     optimizer_policy,
     optimizer_value,
     word_list,
@@ -34,9 +30,11 @@ def training_loop(
     start_epoch=0,
     ppo_epochs=4,
     eval_and_save_per=20,
-    minibatch_size=32,
+    minibatch_size=256,
     gamma=1.0,
     clip_epsilon=0.2,
+    entropy_coef=0.01,
+    entropy_decay=0.95,
     device=torch.device("cpu"),
     fifo_queue=deque(maxlen=20),
     fifo_threshold=5,
@@ -55,10 +53,7 @@ def training_loop(
             word_list,
             answer_list,
             word_matrix,
-            observation_encoder,
-            shared_encoder,
-            policy_head,
-            value_head,
+            actor_critic,
             gamma=gamma,
             device=device,
             fifo_queue=fifo_queue,
@@ -104,10 +99,7 @@ def training_loop(
                 adv_batch = [dataset[i][4] for i in batch_indices]
 
                 ppo_update(
-                    observation_encoder,
-                    shared_encoder,
-                    policy_head,
-                    value_head,
+                    actor_critic,
                     optimizer_policy,
                     optimizer_value,
                     obs_batch,
@@ -117,10 +109,13 @@ def training_loop(
                     logp_batch,
                     word_matrix,
                     clip_epsilon=clip_epsilon,
+                    entropy_coef=entropy_coef,
                     device=device,
                     writer=writer,
                     global_step=epoch * ppo_epochs + ppo_epoch
                 )
+                
+        entropy_coef *= entropy_decay
           
         #continue   
         # update schedulers  
@@ -130,34 +125,36 @@ def training_loop(
             scheduler_value.step()
         
         if epoch % eval_and_save_per == 0: # evaluate and save state
-            print("evaluating policy on all answers...")
+            print("Evaluating policy on all answers...")
             win_rate, avg_guesses = evaluate_policy_on_all_answers(
             env_class=BatchedWordleEnv,
             word_list=word_list,
             answer_list=answer_list,
             word_matrix=word_matrix,
-            observation_encoder=observation_encoder,
-            shared_encoder=shared_encoder,
-            policy_head=policy_head,
+            actor_critic=actor_critic,
             device=device)
             writer.add_scalar("Eval/win_rate", win_rate, epoch)
             writer.add_scalar("Eval/avg_guesses", avg_guesses, epoch)
             
-            print("saving model state...")
+            print(f"Saving model state for epoch {epoch}...")
+            
             # save model state
             checkpoint = {
-                "letter_encoder": letter_encoder.state_dict(),
-                "observation_encoder": observation_encoder.state_dict(),
-                "shared_encoder": shared_encoder.state_dict(),
-                "policy_head": policy_head.state_dict(),
-                "value_head": value_head.state_dict(),
+                "letter_encoder": actor_critic.obs_shared.observation_encoder.letter_encoder.state_dict(),
+                "observation_encoder": actor_critic.obs_shared.observation_encoder.state_dict(),
+                "shared_encoder": actor_critic.obs_shared.shared_encoder.state_dict(),
+                "policy_head": actor_critic.policy_head.state_dict(),
+                "value_head": actor_critic.value_head.state_dict(),
                 "optimizer_policy": optimizer_policy.state_dict(),
                 "optimizer_value": optimizer_value.state_dict(),
-                "scheduler_policy": scheduler_policy.state_dict(),
-                "scheduler_value": scheduler_value.state_dict(),
                 "epoch": epoch,
             }
+            if scheduler_policy:
+                checkpoint["scheduler_policy"] = scheduler_policy.state_dict()
+            if scheduler_value:
+                checkpoint["scheduler_value"] = scheduler_value.state_dict()
             torch.save(checkpoint, os.path.join(save_dir, f"checkpoint_epoch_{epoch}.pth"))
+            print("Model state saved!")
             
     # close writer
     writer.close()

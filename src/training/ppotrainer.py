@@ -4,20 +4,20 @@ from torch.distributions import Categorical
 
 # made in part with generative AI
 def ppo_update(
-    actor_critic,
-    optimizer_policy,
-    optimizer_value,
-    observations,
-    actions,
-    advantages,
-    returns,
-    old_log_probs,
-    word_matrix,
-    clip_epsilon=0.2,
-    entropy_coef = 0.01,
-    device="cpu",
-    writer=None,
-    global_step=None,
+    actor_critic, # ActorCritic model
+    optimizer_policy, # optimizer for policy net
+    optimizer_value, # optimizer for value net
+    observations, # list of observations
+    actions, # list of actions (indices for the guess list)
+    advantages, # difference between actual and expected returns
+    returns, # actual returns
+    old_log_probs, # log probabilities for the actions at the time of the episodes
+    word_matrix, # word embeddings
+    clip_epsilon=0.2, # clip epsilon for PPO - how tightly to clamp the new vs old prob ratios
+    entropy_coef = 0.01, # how much to encourage higher entropy of action probabilities in the loss - higher entropy -> more exploration
+    device="cpu", # device
+    writer=None, # writer for logging PPO loss
+    global_step=None, # step in the overarching model training
 ):
     """
     Performs a single PPO update step over the given trajectory, with the given observations, rewards, etc to batch.

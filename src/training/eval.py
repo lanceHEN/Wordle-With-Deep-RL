@@ -1,9 +1,11 @@
 import torch
 from envs.wordleenv import WordleEnv
 
-# given an environment class, word list, answer list, model architecture, and device, evaluates model performance on every answer
-# word, including win rate (% of time the answer is found in time) and average guesses
-# does this in batches to speed up computation
+# given an environment class, word list, answer list, word embeddings, model, batch_size and device,
+# evaluates model performance on every answer word, including win rate (% of time the answer is found in time)
+# and average guesses used
+# does this in batches with given batch_size to speed up computation
+# returns win rate and avg_guesses, in addition to printing them
 # made with help of generative AI
 def evaluate_policy_on_all_answers(env_class, word_list, answer_list, word_matrix, actor_critic, batch_size=512, device="cpu"):
     total_games = len(answer_list)
@@ -50,7 +52,7 @@ def evaluate_policy_on_all_answers(env_class, word_list, answer_list, word_matri
                             won_flags[i] = True
                         done_flags[i] = done_list[i]
 
-
+            # count number of wins
             for won, g in zip(won_flags, guesses):
                 if won:
                     total_wins += 1

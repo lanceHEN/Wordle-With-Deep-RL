@@ -172,7 +172,7 @@ def generate_batched_trajectories(
             obs_list = next_obs_list
 
     # Compute returns and advantages
-    trajectories = {"observations": [], "actions": [], "log_probs": [], "returns": [], "advantages": [], "envAnswers": [], "successBools": [], "numGuesses": []}
+    trajectories = {"observations": [], "actions": [], "log_probs": [], "returns": [], "advantages": [], "env_answers": [], "success_bools": [], "num_guesses": []}
 
     for i in range(batch_size):
         rewards = all_rewards[i]
@@ -194,6 +194,6 @@ def generate_batched_trajectories(
         env = batched_env.envs[i]
         trajectories["env_answers"].append(env.game.word)
         trajectories["success_bools"].append(env.game.is_won)
-        trajectories["num_guesses"].append(len(rewards))  # number of guesses = number of rewards
+        trajectories["num_guesses"].append(len(rewards))  # number of guesses = number of rewards - if the game is already over, the guesses don't increase
 
     return trajectories

@@ -13,7 +13,9 @@ from collections import deque
 
 # Main training loop for PPO applied to Wordle
 # trains the model for the specified number of epochs, at each epoch collecting trajectories from the batched environments, and applying PPO updates
-# also periodically (every eval_and_save_per epochs) prints out and saves to tensorboard the success rate, and average number of guesses, and also saves the model
+# also periodically (every eval_and_save_per epochs) prints out and saves to tensorboard the success rate, and average number of guesses, and also saves the model.
+# This also includes a FIFO queue, used for concentrating the model on challenging words - words which take fifo_threshold or more guesses.
+# No more than fifo_percentage of the total number of guesses is set aside for words in the FIFO queue.
 # made in part with generative AI
 def training_loop(
     batched_env, # the batched wordle environments, as a BatchedWordleEnv
@@ -61,7 +63,7 @@ def training_loop(
 
         # Add hard solutions to FIFO queue
         # Meaning: words that took at least fifo_threshold guesses, whether they were found or not
-        for answer, guesses in zip(traj["envAnswers"], traj["numGuesses"]):
+        for answer, guesses in zip(traj["env_answers"], traj["num_guesses"]):
             if guesses >= fifo_threshold: # at least fifo_threshold guesses
                 fifo_queue.append(answer)
                 

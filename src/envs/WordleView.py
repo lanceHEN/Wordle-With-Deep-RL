@@ -5,7 +5,7 @@ import os
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from utils.LoadList import load_word_list
-
+current_directory = os.getcwd()
 
 pygame.init()
 
@@ -16,7 +16,7 @@ GREEN = (0, 150, 0)
 YELLOW = (200, 200, 0)
 GRAY = (100, 100, 100)
 SCREEN_WIDTH = 400
-SCREEN_HEIGHT = 400
+SCREEN_HEIGHT = 500
 FONT_SIZE = 48
 TILE_SIZE = 60
 PADDING = 10
@@ -85,9 +85,9 @@ def draw_game(game: WordleGame):
 
 def initialize_game():
     '''Initialize the Wordle game with a default word.'''
-    word_list = load_word_list('../data/5letterwords.txt')
-    answer_list = load_word_list('../data/5letteranswers.txt')
-    return WordleGame(word_list=word_list, answer_list=answer_list, word='apple')
+    word_list = load_word_list('data/5letterwords.txt')
+    answer_list = load_word_list('data/5letteranswers.txt')
+    return WordleGame(word_list=word_list, answer_list=answer_list, word='musty')
 
 def handle_input(game: WordleGame, event):
     '''Handle keyboard input for the game.

@@ -33,8 +33,6 @@ def training_loop(
     minibatch_size=256, # how many steps to consider at once in the PPO update
     gamma=1.0, # discount factor 
     clip_epsilon=0.2, # how tightly to clip the probability ratio for PPO
-    entropy_coef=0.01, # coefficient for entropy in model loss - the higher, the more it is encouraged to have more balanced probabilites, encouraging exploration
-    entropy_decay=0.95, # the rate at which to decay entropy_coef, applied at the end of each overall epoch
     device=torch.device("cpu"), # device
     fifo_queue=deque(maxlen=20), # size of the FIFO queue to store challenging words
     fifo_threshold=5, # minimum number of required guesses to add a word to the FIFO queue
@@ -107,13 +105,11 @@ def training_loop(
                     logp_batch,
                     word_matrix,
                     clip_epsilon=clip_epsilon,
-                    entropy_coef=entropy_coef,
                     device=device,
                     writer=writer,
                     global_step=epoch * ppo_epochs + ppo_epoch
                 )
-                
-        entropy_coef *= entropy_decay # update entropy
+
           
         #continue   
         # update schedulers

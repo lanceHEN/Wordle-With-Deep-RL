@@ -7,20 +7,17 @@ import torch.nn as nn
 # this is a simple MLP in practice, taking in the flatten grid concatenated with the 1d additional info tensor
 class SharedEncoder(nn.Module):
     
-    # initializes a SharedEncoder with the given embedding dimension, hidden dimensions, and output dimension
-    def __init__(self, embed_dim=19, hidden_dim_1=768, hidden_dim_2=512, output_dim=256):
+    # initializes a SharedEncoder with the given embedding dimension, and hidden dimensions
+    def __init__(self, embed_dim=19, first_hidden_dim=512, second_hidden_dim=256):
         super().__init__()
         self.input_dim = 6 * 5 * embed_dim + 2
         
         self.encoder = nn.Sequential( # Feedforward
-            nn.Linear(self.input_dim, hidden_dim_1),
-            nn.LayerNorm(hidden_dim_1),
+            nn.Linear(self.input_dim, first_hidden_dim),
+            nn.LayerNorm(first_hidden_dim),
             nn.ReLU(inplace=False),
-            nn.Linear(hidden_dim_1, hidden_dim_2),
-            nn.LayerNorm(hidden_dim_2),
-            nn.ReLU(inplace=False),
-            nn.Linear(hidden_dim_2, output_dim),
-            nn.LayerNorm(output_dim),
+            nn.Linear(first_hidden_dim, second_hidden_dim),
+            nn.LayerNorm(second_hidden_dim),
             nn.ReLU(inplace=False)
         )
     

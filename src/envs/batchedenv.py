@@ -7,10 +7,10 @@ from envs.wordleenv import WordleEnv
 class BatchedWordleEnv:
     
     # given an environment class (e.g. WordleEnv), word list, answer list, batch size, win reward, lose reward, and info gain coefficient,
-    # produces a BatchedWordleEnv, a batched set of environments each with the given word list, answer list, batch size, env class, win reward, lose reward,
-    # and info gain coefficient, with the given number of batches
-    def __init__(self, word_list, answer_list, batch_size, env_class=WordleEnv, win_reward=20, lose_reward=-10, info_gain_coef=0.1):
-        self.envs = [env_class(word_list, answer_list, win_reward=win_reward, lose_reward=lose_reward, info_gain_coef=info_gain_coef) for _ in range(batch_size)]
+    # produces a BatchedWordleEnv, a batched set of environments each with the given word list, answer list, batch size, env class, win reward,
+    # and lose reward, with the given number of batches
+    def __init__(self, word_list, answer_list, batch_size, env_class=WordleEnv, win_reward=20, lose_reward=-10):
+        self.envs = [env_class(word_list, answer_list, win_reward=win_reward, lose_reward=lose_reward) for _ in range(batch_size)]
         self.batch_size = batch_size
         self.word_list = word_list
         self.answer_list = answer_list

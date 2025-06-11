@@ -11,20 +11,17 @@ class WordleEnv:
         list of lists of "green", "yellow" or "gray" feedback results
     2. 'turn_number', mapping to the current turn in the game
     3. 'valid_indices', which maps to a list of indices of words in the given word_list that do not contradict existing feedback
-    The agent earns a specified win reward if they win, a lose reward if they lose, and an intermediate reward of -1 + info_gain_coef * normalized_info_gain,
-    where normalized_info_gain is between 0 and 1, and represents how much information was found via the guess, rewarding more informative incorrect guesses.
+    The agent earns a specified win reward if they win, a lose reward if they lose, and an intermediate reward of -1 for incorrect guesses.
     '''
     
-    def __init__(self, word_list, answer_list, win_reward=20, lose_reward=-10, info_gain_coef=0.1):
+    def __init__(self, word_list, answer_list, win_reward=20, lose_reward=-10):
         '''
-        Initializes a wordle environment, with the given word list, answer list, win reward, and (normalized) information gain
-        reward coefficient
+        Initializes a wordle environment, with the given word list, answer list, and win reward
         Args:
             word_list: list of valid guesses
             answer_list: list of possible secret words
             win_reward: reward for winning
             lose_reward: reward for losing
-            info_gain_coef: coefficient to multiply by normalized info gain for incorrect guesses
         '''
         self.word_list = word_list
         self.answer_list = answer_list
@@ -33,8 +30,7 @@ class WordleEnv:
         self.word_to_idx = {word: i for i, word in enumerate(word_list)}
         self.win_reward = win_reward
         self.lose_reward = lose_reward
-        self.info_gain_coef = info_gain_coef
-    
+
     def reset(self, word: Optional[str] = None):
         '''
         resets the environment w/ a brand new game
@@ -67,12 +63,8 @@ class WordleEnv:
         feedback = self.game.get_feedback()
         latest_guess, latest_result = feedback[-1]
         
-        prior = len(self.candidate_words) # how many words before the guess
-        
         # filter candidate_words by keeping candidates consistent w/ that feedback
         self._filter_cands(latest_guess, latest_result)
-        
-        posterior = len(self.candidate_words) # how many words after the guess
         
         # reward
         if self.game.is_game_over():
@@ -81,9 +73,7 @@ class WordleEnv:
             else:
                 reward = self.lose_reward  # game is lost
         else:
-            info_gain = math.log(prior) - math.log(posterior)
-            normalized_info_gain = info_gain / math.log(prior) # between 0 and 1
-            reward = normalized_info_gain*self.info_gain_coef - 1 # guess is incorrect
+            reward = -1 # guess is incorrect
         
         # return obs and done
         obs = self._get_obs()

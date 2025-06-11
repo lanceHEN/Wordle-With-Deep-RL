@@ -16,9 +16,25 @@ class WordleActorCritic(nn.Module):
     # Given an observation batch, and word encodings, produces two outputs:
     # 1. Logits over each action (word), i.e. the policy output
     # 2. Value prediction, i.e. the value output
-    def forward(self, obs_batch, word_matrix):
+    def forward(self, obs_batch, word_encodings):
+        device = next(self.parameters()).device
+        
         valid_indices_batch = [obs["valid_indices"] for obs in obs_batch]
         h = self.obs_shared(obs_batch)  # [B, hidden_dim]
-        logits = self.policy_head(h, valid_indices_batch, word_matrix)  # [B, V]
+        query = self.policy_head(h, valid_indices_batch)  # [B, V]
+        
+        # Compute logits via dot product with all word embeddings
+        logits = query @ word_encodings.T  # [B, vocab_size]
+
+        # Create a mask for invalid indices
+        batch_size, vocab_size = logits.shape
+        mask = torch.ones(batch_size, vocab_size, dtype=torch.bool, device=device)
+        for i, valid_idx in enumerate(valid_indices_batch):
+            mask[i, valid_idx] = False  # these are VALID indices, so mask should be False here
+
+        # Apply mask
+        mask_float = torch.where(mask, float('-inf'), 0.0)
+        masked_logits = logits + mask_float
+        
         values = self.value_head(h).squeeze(-1)  # [B]
-        return logits, values
+        return masked_logits, values

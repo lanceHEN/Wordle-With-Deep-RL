@@ -20,8 +20,7 @@ from collections import deque
 def training_loop(
     batched_env, # the batched wordle environments, as a BatchedWordleEnv
     actor_critic, # the wrapped model architecture, as a WordleActorCritic
-    optimizer_policy, # optimizer for the policy network
-    optimizer_value, # optimizer for the value network
+    optimizer, # optimizer
     word_list, # list of all words that can be used as guesses
     answer_list, # list of all words that can be used as answers
     word_matrix, # one hot embeddings for every word in word_list, as a [len(word_list), 130] torch tensor
@@ -40,8 +39,7 @@ def training_loop(
     fifo_queue=deque(maxlen=20), # size of the FIFO queue to store challenging words
     fifo_threshold=5, # minimum number of required guesses to add a word to the FIFO queue
     fifo_percentage=0.2, # percentage of words in the environment that should be devoted to FIFO words
-    scheduler_policy=None, # optional scheduler for policy optimizer
-    scheduler_value=None# optional scheduler for value optimizer
+    scheduler=None, # optional scheduler for optimizer
 ):
     
     os.makedirs(save_dir, exist_ok=True) # make sure checkpoint dir exists
@@ -101,8 +99,7 @@ def training_loop(
 
                 ppo_update(
                     actor_critic,
-                    optimizer_policy,
-                    optimizer_value,
+                    optimizer,
                     obs_batch,
                     act_batch,
                     adv_batch,
@@ -120,10 +117,8 @@ def training_loop(
           
         #continue   
         # update schedulers
-        if scheduler_policy:
-            scheduler_policy.step()
-        if scheduler_value:
-            scheduler_value.step()
+        if scheduler:
+            scheduler.step()
         
         if epoch % eval_and_save_per == 0: # evaluate and save state
             print("Evaluating policy on all answers...")
@@ -146,14 +141,11 @@ def training_loop(
                 "shared_encoder": actor_critic.obs_shared.shared_encoder.state_dict(),
                 "policy_head": actor_critic.policy_head.state_dict(),
                 "value_head": actor_critic.value_head.state_dict(),
-                "optimizer_policy": optimizer_policy.state_dict(),
-                "optimizer_value": optimizer_value.state_dict(),
+                "optimizer": optimizer.state_dict(),
                 "epoch": epoch,
             }
-            if scheduler_policy:
-                checkpoint["scheduler_policy"] = scheduler_policy.state_dict()
-            if scheduler_value:
-                checkpoint["scheduler_value"] = scheduler_value.state_dict()
+            if scheduler:
+                checkpoint["scheduler"] = scheduler.state_dict()
             torch.save(checkpoint, os.path.join(save_dir, f"checkpoint_epoch_{epoch}.pth"))
             print("Model state saved!")
             

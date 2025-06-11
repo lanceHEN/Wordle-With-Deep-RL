@@ -5,8 +5,7 @@ from torch.distributions import Categorical
 # made in part with generative AI
 def ppo_update(
     actor_critic, # ActorCritic model
-    optimizer_policy, # optimizer for policy net
-    optimizer_value, # optimizer for value net
+    optimizer, # optimizer
     observations, # list of observations
     actions, # list of actions (indices for the guess list)
     advantages, # difference between actual and expected returns
@@ -14,7 +13,6 @@ def ppo_update(
     old_log_probs, # log probabilities for the actions at the time of the episodes
     word_matrix, # word embeddings
     clip_epsilon=0.2, # clip epsilon for PPO - how tightly to clamp the new vs old prob ratios
-    entropy_coef = 0.01, # how much to encourage higher entropy of action probabilities in the loss - higher entropy -> more exploration
     device="cpu", # device
     writer=None, # writer for logging PPO loss
     global_step=None, # step in the overarching model training
@@ -25,8 +23,7 @@ def ppo_update(
     For negative advantage (scoring lower than expected), we want to encourage a lower probability of that action.
     """
     # Clear gradients explicitly
-    optimizer_policy.zero_grad(set_to_none=True)
-    optimizer_value.zero_grad(set_to_none=True)
+    optimizer.zero_grad(set_to_none=True)
     
     # Turn lists into tensors
     actions = torch.as_tensor(actions, device=device)
@@ -54,7 +51,7 @@ def ppo_update(
 
     value_loss = F.mse_loss(values.view(-1), returns.view(-1))
     
-    total_loss = policy_loss + value_loss - entropy_coef * entropy
+    total_loss = policy_loss + value_loss
     #print(total_loss)
     
     if writer: # log the losses to tensorboard, if writer given
@@ -66,5 +63,4 @@ def ppo_update(
     #print("[ppo_update] about to call backward()")
     total_loss.backward()
     
-    optimizer_policy.step()
-    optimizer_value.step()
+    optimizer.step()

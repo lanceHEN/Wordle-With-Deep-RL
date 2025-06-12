@@ -33,6 +33,16 @@ class CNNSharedEncoder(nn.Module):
             nn.LayerNorm(board_hidden_dim),
             nn.ReLU(inplace=True),
         )
+    def forward(self, grid, meta):
+        # rearranging channel-first for Conv 2d Net [B, C, H=6, W=5]
+        x = grid.permute(0, 3, 1, 2).contiguous()
+
+        board_emb = self.readout(self.conv(x)) # [B, board_hidden_dim]
+        fused = torch.cat([board_emb, meta], dim = -1)
+        return self.fuse(fused) # [B, output_dim]
+                     
+
+
                      
 
 

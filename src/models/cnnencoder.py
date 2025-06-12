@@ -1,8 +1,7 @@
 import torch
 import torch.nn as nn
-import torch.nn.functional as F
 
-class CNNObservationEncoder(nn.Module):
+class CNNSharedEncoder(nn.Module):
     '''
     encodes a batch of Wordle observations w/ a convolutional variant of ObservationEncoder
     output:

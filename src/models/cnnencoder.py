@@ -1,11 +1,16 @@
 import torch
 import torch.nn as nn
 
+'''
+    expects output of ObservationEncoder [B, 6, 5, per_cell_dim]
+    expects meta [B, 2]
+    returns [B, output_dim]
+    '''
 class CNNSharedEncoder(nn.Module):
     '''
-    expects output of ObservationEncoder [B, 6, 5, per_cell_dim]
-    expects [B, 2]
-    returns [B, output_dim]
+    given:
+        grid [B, 6, 5, embed_dim]
+        meta [B, 2]
     '''
     def __init__(self,
                  per_cell_dim: int = 19, # = letter_embed_dim + 3

@@ -1,7 +1,8 @@
 import torch
 import torch.nn as nn
 
-'''
+    '''
+    Variation of SharedEncoder that has a Convolutional Neural Network front-end.
     expects output of ObservationEncoder [B, 6, 5, per_cell_dim]
     expects meta [B, 2]
     returns [B, output_dim]

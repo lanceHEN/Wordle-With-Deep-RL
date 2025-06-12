@@ -3,38 +3,30 @@ import torch.nn as nn
 
 class CNNSharedEncoder(nn.Module):
     '''
-    encodes a batch of Wordle observations w/ a convolutional variant of ObservationEncoder
-    output:
-        board_embeds: [B, hidden_dim]: latent board embedding of 6 x 5 grid
-        meta_tensor: [B, 2]: (turn_num, valid_frac)
+    expects output of ObservationEncoder [B, 6, 5, per_cell_dim]
+    expects [B, 2]
+    returns [B, output_dim]
     '''
     def __init__(self,
-        letter_encoder: nn.Embedding, # learned letter embedder fron observationencoder
-        conv_channel = (32, 64, 128), # output channels per conv blocks
-        hidden_dim: int = 256, # final board embedding size
-        vocab_size: int = 14_855, # answer vocab size
-    ):
+                 per_cell_dim: int = 19, # = letter_embed_dim + 3
+                 conv_channels: tuple = (32, 64, 128),
+                 board_hidden_dim: int = 256,    # after flattening convmap
+                 first_hidden_dim: int = 512,
+                 output_dim: int = 256):
         super().__init__()
-        self.letter_encoder = letter_encoder
-        self.feedback_dim = 3 # one-hot size for gray, yellow, green
-        self.vocab_size = vocab_size
 
         # ConvNet [C, H = 6, W = 5]
-        in_ch = self.letter_encoder.embedding_dim + self.feedback_dim
+        in_ch = per_cell_dim
         layers = []
-        for out_ch in conv_channel:
+        for out_ch in conv_channels:
             layers += [
-                nn.Conv2d(in_ch, out_ch, kernel_size = 3, padding = 1),
-                nn.ReLU(inplace = True),
+                nn.Conv2d(in_ch, out_ch, kernel_size=3, padding=1),
+                nn.ReLU(inplace=True),
             ]
             in_ch = out_ch
-        self.conv = nn.Sequential(*layers) # keeps shape ([B, last_ch, 6, 5])
+        self.conv = nn.Sequential(*layers) # 6×5 resolution
+                     
 
-        # self read_out that fixes hidden_dim
-        self.readout = nn.Sequential(
-            nn.Flatten(), # [B, last_ch*6*5]
-            nn.Linear(in_ch * 6 * 5, hidden_dim),
-            nn.ReLU(inplace=True),
-        )
-    def forward(self, obs_batch):
+
+
         

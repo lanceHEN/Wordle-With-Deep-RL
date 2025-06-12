@@ -25,6 +25,14 @@ class CNNSharedEncoder(nn.Module):
             ]
             in_ch = out_ch
         self.conv = nn.Sequential(*layers) # 6×5 resolution
+
+        # readout to the fixed board embedding
+        self.readout = nn.Sequential(
+            nn.Flatten(), # [B, in_ch * 6 * 5]
+            nn.Linear(in_ch * 6 * 5, board_hidden_dim),
+            nn.LayerNorm(board_hidden_dim),
+            nn.ReLU(inplace=True),
+        )
                      
 
 

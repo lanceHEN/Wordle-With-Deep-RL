@@ -33,6 +33,7 @@ def training_loop(
     minibatch_size=256, # how many steps to consider at once in the PPO update
     gamma=1.0, # discount factor 
     clip_epsilon=0.2, # how tightly to clip the probability ratio for PPO
+    value_loss_coef=0.5, # coefficient for value loss
     device=torch.device("cpu"), # device
     fifo_queue=deque(maxlen=20), # size of the FIFO queue to store challenging words
     fifo_threshold=5, # minimum number of required guesses to add a word to the FIFO queue
@@ -105,6 +106,7 @@ def training_loop(
                     logp_batch,
                     word_matrix,
                     clip_epsilon=clip_epsilon,
+                    value_loss_coef=value_loss_coef,
                     device=device,
                     writer=writer,
                     global_step=epoch * ppo_epochs + ppo_epoch

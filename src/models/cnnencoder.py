@@ -19,7 +19,7 @@ class CNNSharedEncoder(nn.Module):
     def __init__(self,
                 per_cell_dim: int = 19, # = letter_embed_dim + 3
                 conv_channels: tuple = (32, 64),
-                first_hidden_dim: int = 512,
+                hidden_dim: int = 512,
                 output_dim: int = 256):
         super().__init__()
         
@@ -37,10 +37,10 @@ class CNNSharedEncoder(nn.Module):
         
         # fuses with meta tensor via Multilayer Perceptron
         self.fuse = nn.Sequential(
-            nn.Linear(in_ch * 6 * 5 + 2, first_hidden_dim),
-            nn.LayerNorm(first_hidden_dim),
+            nn.Linear(in_ch * 6 * 5 + 2, hidden_dim),
+            nn.LayerNorm(hidden_dim),
             nn.ReLU(inplace=False),
-            nn.Linear(first_hidden_dim, output_dim),
+            nn.Linear(hidden_dim, output_dim),
             nn.LayerNorm(output_dim),
             nn.ReLU(inplace=False),
         )

@@ -20,7 +20,7 @@ class CNNSharedEncoder(nn.Module):
                 per_cell_dim: int = 19, # = letter_embed_dim + 3
                 conv_channels: tuple = (32, 64),
                 first_hidden_dim: int = 512,
-                second_hidden_dim: int = 256):
+                output_dim: int = 256):
         super().__init__()
         
         in_ch = per_cell_dim
@@ -40,8 +40,8 @@ class CNNSharedEncoder(nn.Module):
             nn.Linear(in_ch * 6 * 5 + 2, first_hidden_dim),
             nn.LayerNorm(first_hidden_dim),
             nn.ReLU(inplace=False),
-            nn.Linear(first_hidden_dim, second_hidden_dim),
-            nn.LayerNorm(second_hidden_dim),
+            nn.Linear(first_hidden_dim, output_dim),
+            nn.LayerNorm(output_dim),
             nn.ReLU(inplace=False),
         )
 
@@ -55,7 +55,7 @@ class CNNSharedEncoder(nn.Module):
         flat = self.flatten(self.conv(x)) # in_ch * 6 * 5
 
         fused = torch.cat([flat, meta], dim = -1) # in_ch * 6 * 5 + 2
-        return self.fuse(fused) # [B, second_hidden_dim]
+        return self.fuse(fused) # [B, output_dim]
                     
                      
 

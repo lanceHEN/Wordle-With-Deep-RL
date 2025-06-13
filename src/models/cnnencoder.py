@@ -19,7 +19,8 @@ class CNNSharedEncoder(nn.Module):
     def __init__(self,
                 per_cell_dim: int = 19, # = letter_embed_dim + 3
                 conv_channels: tuple = (32, 64),
-                first_hidden_dim: int = 512,    # after flattening convmap
+                board_hidden_dim: int = 256,    # after flattening convmap
+                first_hidden_dim: int = 512,
                 second_hidden_dim: int = 256):
         super().__init__()
         
@@ -27,17 +28,24 @@ class CNNSharedEncoder(nn.Module):
         layers = []
         for out_ch in conv_channels:
             layers += [
-                nn.Conv2d(in_ch, out_ch, kernel_size=3, padding=1),
+                nn.Conv2d(in_ch, out_ch, kernel_size=3, stride=1, padding=1),
                 nn.ReLU(inplace=True),
             ]
             in_ch = out_ch
         self.conv = nn.Sequential(*layers)
         
         self.flatten = nn.Flatten()
-
+        
+        # readout to the fixed board embedding
+        self.readout = nn.Sequential(
+            nn.Flatten(), # [B, in_ch * 6 * 5]
+            nn.Linear(in_ch * 6 * 5, board_hidden_dim),
+            nn.LayerNorm(board_hidden_dim),
+            nn.ReLU(inplace=True),
+        )
         # fuses with meta tensor via Multilayer Perceptron
         self.fuse = nn.Sequential(
-            nn.Linear(6*5*19 + 2, first_hidden_dim),
+            nn.Linear(board_hidden_dim + 2, first_hidden_dim),
             nn.LayerNorm(first_hidden_dim),
             nn.ReLU(inplace=False),
             nn.Linear(first_hidden_dim, second_hidden_dim),
@@ -52,8 +60,8 @@ class CNNSharedEncoder(nn.Module):
         # rearrange so that guesses become channels (like color channels in images)
         x = grid.permute(0, 3, 2, 1).contiguous()  # [B, D, 5, 6]
 
-        flat = self.flatten(self.conv(x))
-        fused = torch.cat([flat, meta], dim=-1)
+        board_emb = self.readout(self.conv(x)) # [B, board_hidden_dim]
+        fused = torch.cat([board_emb, meta], dim = -1)
         return self.fuse(fused) # [B, output_dim]
                     
                      

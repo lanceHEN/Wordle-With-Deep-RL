@@ -34,8 +34,6 @@ class CNNSharedEncoder(nn.Module):
             in_ch = out_ch
         self.conv = nn.Sequential(*layers)
         
-        self.flatten = nn.Flatten()
-        
         # readout to the fixed board embedding
         self.readout = nn.Sequential(
             nn.Flatten(), # [B, in_ch * 6 * 5]

@@ -19,7 +19,6 @@ class CNNSharedEncoder(nn.Module):
     def __init__(self,
                 per_cell_dim: int = 19, # = letter_embed_dim + 3
                 conv_channels: tuple = (32, 64),
-                board_hidden_dim: int = 256,    # after flattening convmap
                 first_hidden_dim: int = 512,
                 second_hidden_dim: int = 256):
         super().__init__()
@@ -34,16 +33,11 @@ class CNNSharedEncoder(nn.Module):
             in_ch = out_ch
         self.conv = nn.Sequential(*layers)
         
-        # readout to the fixed board embedding
-        self.readout = nn.Sequential(
-            nn.Flatten(), # [B, in_ch * 6 * 5]
-            nn.Linear(in_ch * 6 * 5, board_hidden_dim),
-            nn.LayerNorm(board_hidden_dim),
-            nn.ReLU(inplace=True),
-        )
+        self.flatten = nn.Flatten()
+        
         # fuses with meta tensor via Multilayer Perceptron
         self.fuse = nn.Sequential(
-            nn.Linear(board_hidden_dim + 2, first_hidden_dim),
+            nn.Linear(in_ch * 6 * 5 + 2, first_hidden_dim),
             nn.LayerNorm(first_hidden_dim),
             nn.ReLU(inplace=False),
             nn.Linear(first_hidden_dim, second_hidden_dim),
@@ -57,10 +51,11 @@ class CNNSharedEncoder(nn.Module):
 
         # rearrange so that guesses become channels (like color channels in images)
         x = grid.permute(0, 3, 2, 1).contiguous()  # [B, D, 5, 6]
+        
+        flat = self.flatten(self.conv(x)) # in_ch * 6 * 5
 
-        board_emb = self.readout(self.conv(x)) # [B, board_hidden_dim]
-        fused = torch.cat([board_emb, meta], dim = -1)
-        return self.fuse(fused) # [B, output_dim]
+        fused = torch.cat([flat, meta], dim = -1) # in_ch * 6 * 5 + 2
+        return self.fuse(fused) # [B, second_hidden_dim]
                     
                      
 

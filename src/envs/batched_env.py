@@ -1,5 +1,5 @@
 import random
-from envs.wordleenv import WordleEnv
+from envs.wordle_env import WordleEnv
 
 # this class allows for a batch of wordle environments together, using the same reset and step methods
 # this was done to enable quicker trajectory collection and training time

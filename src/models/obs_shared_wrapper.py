@@ -1,8 +1,8 @@
 import torch
 import torch.nn as nn
-from models.observationencoder import ObservationEncoder
-from models.sharedencoder import SharedEncoder
-from models.letterencoder import LetterEncoder
+from models.observation_encoder import ObservationEncoder
+from models.shared_encoder import SharedEncoder
+from models.letter_encoder import LetterEncoder
 
 # Wrapper class that combines the ObservationEncoder and SharedEncoder modules into one, allowing a latent vector to be produced
 # when given an observation.

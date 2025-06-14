@@ -1,11 +1,10 @@
-from WordleGame import WordleGame
 import pygame
 import sys
 import os
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-from utils.LoadList import load_word_list
-current_directory = os.getcwd()
+from utils.load_list import load_word_list
+from envs.wordle_game import WordleGame
 
 pygame.init()
 

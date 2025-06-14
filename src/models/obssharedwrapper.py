@@ -16,5 +16,5 @@ class ObservationSharedWrapper(nn.Module):
     def forward(self, batched_obs):
         # batched_obs: [B x 6 x 5 x letter_embed_dim + 3]
         encoded_grid, meta_tensor = self.observation_encoder(batched_obs)
-        h = self.shared_encoder.forward(encoded_grid, meta_tensor)
+        h = self.shared_encoder(encoded_grid, meta_tensor)
         return h # [B, output_dim]

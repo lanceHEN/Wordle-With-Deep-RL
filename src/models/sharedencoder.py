@@ -8,16 +8,16 @@ import torch.nn as nn
 class SharedEncoder(nn.Module):
     
     # initializes a SharedEncoder with the given embedding dimension, and hidden dimensions
-    def __init__(self, embed_dim=19, first_hidden_dim=512, second_hidden_dim=256):
+    def __init__(self, embed_dim=19, hidden_dim=512, output_dim=256):
         super().__init__()
         self.input_dim = 6 * 5 * embed_dim + 2
         
         self.encoder = nn.Sequential( # Feedforward
-            nn.Linear(self.input_dim, first_hidden_dim),
-            nn.LayerNorm(first_hidden_dim),
+            nn.Linear(self.input_dim, hidden_dim),
+            nn.LayerNorm(hidden_dim),
             nn.ReLU(inplace=False),
-            nn.Linear(first_hidden_dim, second_hidden_dim),
-            nn.LayerNorm(second_hidden_dim),
+            nn.Linear(hidden_dim, output_dim),
+            nn.LayerNorm(output_dim),
             nn.ReLU(inplace=False)
         )
     

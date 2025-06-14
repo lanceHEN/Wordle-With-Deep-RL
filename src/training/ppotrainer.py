@@ -13,6 +13,7 @@ def ppo_update(
     old_log_probs, # log probabilities for the actions at the time of the episodes
     word_matrix, # word embeddings
     clip_epsilon=0.2, # clip epsilon for PPO - how tightly to clamp the new vs old prob ratios
+    value_loss_coef=0.5, # coefficient for value loss
     device="cpu", # device
     writer=None, # writer for logging PPO loss
     global_step=None, # step in the overarching model training
@@ -51,7 +52,7 @@ def ppo_update(
 
     value_loss = F.mse_loss(values.view(-1), returns.view(-1))
     
-    total_loss = policy_loss + value_loss
+    total_loss = policy_loss + value_loss_coef*value_loss
     #print(total_loss)
     
     if writer: # log the losses to tensorboard, if writer given

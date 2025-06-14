@@ -1,7 +1,7 @@
 # For testing WorldleGame class
 import unittest
-from WordleGame import WordleGame
-from LoadList import load_word_list
+from envs.wordle_game import WordleGame
+from utils.load_list import load_word_list
 
 WORD_LIST = load_word_list('../data/5letterwords.txt')
 ANSWER_LIST = load_word_list('../data/5letteranswers.txt')

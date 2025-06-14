@@ -1,10 +1,9 @@
 from envs.WordleGame import WordleGame
 from envs.wordleenv import WordleEnv
 from envs.batchedenv import BatchedWordleEnv
-from envs.LoadList import load_word_list
+from utils.LoadList import load_word_list
 from utils.wordtoonehot import word_to_onehot
 from models.letterencoder import LetterEncoder
-from models.wordencoder import WordEncoder
 from models.observationencoder import ObservationEncoder
 from models.sharedencoder import SharedEncoder
 from models.policyhead import PolicyHead
@@ -26,8 +25,8 @@ device = torch.device("mps")
 answer_list = load_word_list('../data/5letteranswersshuffled.txt')[:]
 #word_list = load_word_list('../data/5letterwords.txt')
 #answer_list = load_word_list('../data/5letteranswers.txt')
-word_list = list(set(answer_list + load_word_list('../data/5letterwords.txt')[:200]))
-#word_list = answer_list
+#word_list = list(set(answer_list + load_word_list('../data/5letterwords.txt')[:200]))
+word_list = answer_list
 
 
 

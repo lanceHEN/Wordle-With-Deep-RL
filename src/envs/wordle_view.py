@@ -1,10 +1,15 @@
 import pygame
 import sys
 import os
+import torch
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from utils.load_list import load_word_list
 from envs.wordle_game import WordleGame
+from envs.wordle_env import WordleEnv
+from models.wordle_actor_critic import WordleActorCritic
+from models.wordle_model_wrapper import ModelWrapper
+from utils.word_to_onehot import word_to_onehot
 
 pygame.init()
 
@@ -82,11 +87,10 @@ def draw_game(game: WordleGame):
 
     pygame.display.flip()
 
-def initialize_game():
-    '''Initialize the Wordle game with a default word.'''
-    word_list = load_word_list('data/5letterwords.txt')
-    answer_list = load_word_list('data/5letteranswers.txt')
-    return WordleGame(word_list=word_list, answer_list=answer_list, word='musty')
+def initialize_env(word_list: list, answer_list: list):
+    '''Initialize the Wordle env with the given word and answer lists.'''
+    env = WordleEnv(word_list=word_list, answer_list=answer_list)
+    return env
 
 def handle_input(game: WordleGame, event):
     '''Handle keyboard input for the game.
@@ -111,31 +115,63 @@ def handle_input(game: WordleGame, event):
             if len(game.current_guess) < 5:
                 game.current_guess += event.unicode
 
-def main():
-    # Load word lists and initialize the game
-    game = initialize_game()
+def main(word_list, answer_list, model=None):
+    # Load word lists and initialize the env
+    env = initialize_env(word_list, answer_list)
+    obs = env.reset(word=None)
+    done = False
     running = True
     message_printed = False  # To ensure message is printed once
     clock = pygame.time.Clock()
 
     while running:
-        draw_game(game) # Draw current game state
+        draw_game(env.game) # Draw current game state
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
-            handle_input(game, event) # Handle user keyboard input
+                
+            elif model is None:
+                handle_input(env.game, event)  # Only process keyboard input if model is None
+
+            
+        if model is not None and not done:
+            guess = model.get_guess(obs)
+            env.game.current_guess = guess
+            draw_game(env.game)
+            obs, _, done = env.step(guess)
+            pygame.time.wait(1000)  # Wait 1s for visual clarity
 
         # Print game end messages
-        if game.is_game_over() and not message_printed:
-            if game.is_won:
-                print(f'You guessed the word \'{game.word.upper()}\' in {game.num_guesses} tries!')
+        if done and not message_printed:
+            if env.game.is_won:
+                print(f'You guessed the word \'{env.game.word.upper()}\' in {env.game.num_guesses} tries!')
             else:
-                print(f'Sorry, you lost! The word was: \'{game.word.upper()}\'')
+                print(f'Sorry, you lost! The word was: \'{env.game.word.upper()}\'')
             message_printed = True
 
         clock.tick(30)
     pygame.quit()
     sys.exit()
 
+# set device
+device = torch.device("mps")
+
+# set answer list and word list (here we set word list to answer list)
+answer_list = load_word_list('data/5letteranswersshuffled.txt')[:]
+word_list = answer_list
+
+# get word embeddings (one hot for simplicity)
+word_matrix = torch.stack([word_to_onehot(w) for w in word_list]).to(device)  # shape: [vocab_size, 130]
+    
+# initialize model
+actor_critic = WordleActorCritic().to(device)
+
+# load weights
+checkpoint = torch.load("checkpoints/test_comprehensive_save/checkpoint_epoch_0.pth")
+actor_critic.load_state_dict(checkpoint["model"])
+
+# get model wrapper for easy interfacing
+model = ModelWrapper(actor_critic, word_list, word_matrix, device)
+
 if __name__ == '__main__':
-    main()
+    main(word_list, answer_list, model=model) # set model to none for human play

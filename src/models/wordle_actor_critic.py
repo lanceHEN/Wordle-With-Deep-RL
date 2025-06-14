@@ -1,8 +1,8 @@
 import torch
 import torch.nn as nn
-from models.obssharedwrapper import ObservationSharedWrapper
-from models.policyhead import PolicyHead
-from models.valuehead import ValueHead
+from models.obs_shared_wrapper import ObservationSharedWrapper
+from models.policy_head import PolicyHead
+from models.value_head import ValueHead
 
 # Wrapper that combines the functionality of all individual components into one, such that given an observation, it will produce:
 # 1. Logits over each action (word), i.e. the policy output

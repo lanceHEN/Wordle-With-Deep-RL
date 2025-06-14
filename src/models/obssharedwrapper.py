@@ -1,15 +1,27 @@
 import torch
 import torch.nn as nn
+from models.observationencoder import ObservationEncoder
+from models.sharedencoder import SharedEncoder
+from models.letterencoder import LetterEncoder
 
-# Wrapper class that combines the ObservationEncoder and SharedEncoder modules.
+# Wrapper class that combines the ObservationEncoder and SharedEncoder modules into one, allowing a latent vector to be produced
+# when given an observation.
 # This can then be combined with either a PolicyHead or ValueHead.
+# For convenience, the ObservationEncoder and SharedEncoder do not have to be given on construction, they can be made on construction
+# if set to None
 class ObservationSharedWrapper(nn.Module):
     
-    # given an ObservationEncoder and SharedEncoder, produces an ObservationSharedWrapper
-    def __init__(self, observation_encoder, shared_encoder):
+    def __init__(self, observation_encoder=None, shared_encoder=None):
         super().__init__()
-        self.observation_encoder = observation_encoder
-        self.shared_encoder = shared_encoder
+        if observation_encoder is None:
+            self.observation_encoder = ObservationEncoder(LetterEncoder())
+        else:
+            self.observation_encoder = observation_encoder
+        
+        if shared_encoder is None:
+            self.shared_encoder = SharedEncoder()
+        else:
+            self.shared_encoder = shared_encoder
         
     # given batched observations, produces batched latent vector representations to be fed either into policy head or value head
     # in other words, this combines the forward pass for ObservationEncoder and SharedEncoder.

@@ -1,5 +1,5 @@
 from typing import List, Tuple, Optional
-from envs.WordleGame import WordleGame # referring WordleGame class
+from envs.wordle_game import WordleGame # referring WordleGame class
 import math
 
 class WordleEnv:

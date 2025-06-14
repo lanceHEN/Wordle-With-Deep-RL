@@ -24,7 +24,9 @@ device = torch.device("mps")
 # Load the answer list and word list
 # We find only allowing possible answers as guesses dramatically speeds up training
 answer_list = load_word_list('data/5letteranswersshuffled.txt')[:]
+
 word_list = answer_list
+# word_list = load_word_list('data/5letterwords.txt')[:] # uncomment to use all 14,855 guess words
 
 # Load word matrix
 word_matrix = torch.stack([word_to_onehot(w) for w in word_list]).to(device)  # shape: [vocab_size, 130]

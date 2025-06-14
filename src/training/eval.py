@@ -1,5 +1,5 @@
 import torch
-from envs.wordleenv import WordleEnv
+from envs.wordle_env import WordleEnv
 
 # given an environment class, word list, answer list, word embeddings, model, batch_size and device,
 # evaluates model performance on every answer word, including win rate (% of time the answer is found in time)

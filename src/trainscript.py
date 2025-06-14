@@ -18,66 +18,53 @@ import random
 from collections import deque
 from torch.optim.lr_scheduler import CosineAnnealingLR
 
-#torch.autograd.set_detect_anomaly(True)
-
+# Set the device
 device = torch.device("mps")
 
-answer_list = load_word_list('../data/5letteranswersshuffled.txt')[:]
-#word_list = load_word_list('../data/5letterwords.txt')
-#answer_list = load_word_list('../data/5letteranswers.txt')
-#word_list = list(set(answer_list + load_word_list('../data/5letterwords.txt')[:200]))
+# Load the answer list and word list
+# We find only allowing possible answers as guesses dramatically speeds up training
+answer_list = load_word_list('data/5letteranswersshuffled.txt')[:]
 word_list = answer_list
 
-
-
+# Load word matrix
 word_matrix = torch.stack([word_to_onehot(w) for w in word_list]).to(device)  # shape: [vocab_size, 130]
 
-letter_encoder = LetterEncoder().to(device)
-observation_encoder = ObservationEncoder(letter_encoder, vocab_size=len(word_list)).to(device)
-#grid, meta = oe(obs)
-#print(grid)
-#print(meta)
-shared_encoder = SharedEncoder().to(device)
-#h = se(grid.unsqueeze(0), meta.unsqueeze(0))ƒwe
-#print(h)
+# Load model
+actor_critic = WordleActorCritic().to(device)
 
-policy_head = PolicyHead().to(device)
-value_head = ValueHead().to(device)
+# optimizer
+optimizer = torch.optim.Adam(params=actor_critic.parameters(), lr=2e-4)
 
-actor_critic = WordleActorCritic(observation_encoder, shared_encoder, policy_head, value_head)
+# LR scheduler for more fine grained descent
+scheduler = CosineAnnealingLR(optimizer, T_max=400, eta_min=1e-4)
 
-shared_params = list(observation_encoder.parameters()) + list(shared_encoder.parameters()) + list(letter_encoder.parameters())
-policy_params = shared_params + list(policy_head.parameters())  # Include policy head
-value_params = shared_params + list(value_head.parameters())  # Include value head
+# which epoch to start at
+start_epoch = 0
 
-optimizer_policy = torch.optim.Adam(params=policy_params, lr=2e-4)
-optimizer_value = torch.optim.Adam(params=value_params, lr=2e-4)
 
-# Restore models
+# Uncomment the below lines if you want to restore a checkpoint
+'''
+checkpoint_dir = "ENTER CHECKPOINT DIR"
 
-checkpoint = torch.load("checkpoints/baseline_extra_200/checkpoint_epoch_290.pth") # 100 8 40 # 1000 10 20 # full 60 (3.71) # extra 200 290 (3.68)
-letter_encoder.load_state_dict(checkpoint["letter_encoder"])
-observation_encoder.load_state_dict(checkpoint["observation_encoder"])
-shared_encoder.load_state_dict(checkpoint["shared_encoder"])
-policy_head.load_state_dict(checkpoint["policy_head"])
-value_head.load_state_dict(checkpoint["value_head"])
+checkpoint = torch.load(checkpoint_dir)
 
-# Restore optimizers
-#optimizer_policy.load_state_dict(checkpoint["optimizer_policy"])
-#optimizer_value.load_state_dict(checkpoint["optimizer_value"])
+actor_critic.load_state_dict(checkpoint["model"])
 
+# Restore optimizer
+optimizer.load_state_dict(checkpoint["optimizer"])
 
 # Get last completed epoch
 start_epoch = checkpoint["epoch"] + 1
 
 
-# LR schedules for more fine grained descent
-scheduler_policy = CosineAnnealingLR(optimizer_policy, T_max=400, eta_min=1e-4)
-scheduler_value = CosineAnnealingLR(optimizer_value, T_max=400, eta_min=1e-4)
+# Restore scheduler
+scheduler.load_state_dict(checkpoint["scheduler"])
+'''
 
-#scheduler_policy.load_state_dict(checkpoint["scheduler_policy"])
-#scheduler_value.load_state_dict(checkpoint["scheduler_value"])
+training_checkpoint_dir = "ENTER CHECKPOINT DIR FOR SAVING DURING TRAINING"
+training_logging_dir = "ENTER LOGGING DIR FOR TRAINING"
 
-training_loop(BatchedWordleEnv(word_list, answer_list, batch_size=512), actor_critic, optimizer_policy, optimizer_value, word_list, answer_list, word_matrix, save_dir="checkpoints/baseline_extra_600",
-              log_dir="runs/baseline_extra_600", start_epoch = 0, num_epochs=400, minibatch_size=256, clip_epsilon=0.2, ppo_epochs=4, entropy_coef=0.01, entropy_decay=0.99, eval_and_save_per=10, fifo_queue=deque(maxlen=200), fifo_threshold=5, device=device, scheduler_policy=scheduler_policy, scheduler_value=scheduler_value)
-#evaluate_policy_on_all_answers(BatchedWordleEnv, word_list, answer_list, oe, se, ph, device=device)
+# Train the model
+training_loop(BatchedWordleEnv(word_list, answer_list, batch_size=512), actor_critic, optimizer, word_list, answer_list, word_matrix, save_dir=training_checkpoint_dir,
+              log_dir=training_logging_dir, start_epoch = start_epoch, num_epochs=400, minibatch_size=256, clip_epsilon=0.2, value_loss_coef=1.0, ppo_epochs=4, eval_and_save_per=10,
+              fifo_queue=deque(maxlen=200), fifo_threshold=5, device=device, scheduler=scheduler)

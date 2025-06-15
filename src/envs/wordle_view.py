@@ -1,11 +1,15 @@
-from envs.WordleGame import WordleGame
+from envs.wordle_env import WordleEnv
+from envs.wordle_game import WordleGame
+from models.wordle_actor_critic import WordleActorCritic
+from models.wordle_model_wrapper import ModelWrapper
 import pygame
 import sys
 import os
 import torch
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-from utils.LoadList import load_word_list
+from utils.load_list import load_word_list
+from utils.word_to_onehot import word_to_onehot
 
 class WordleView:
     WHITE = (255, 255, 255)
@@ -94,12 +98,12 @@ def initialize_env(word_list: list, answer_list: list):
     env = WordleEnv(word_list=word_list, answer_list=answer_list)
     return env
 
-            if self.game.is_game_over() and not self.message_printed:
-                if self.game.is_won:
-                    print(f'You guessed the word \'{self.game.word.upper()}\' in {self.game.num_guesses} tries!')
-                else:
-                    print(f'Sorry, you lost! The word was: \'{self.game.word.upper()}\'')
-                self.message_printed = True
+    # if self.game.is_game_over() and not self.message_printed:
+    #     if self.game.is_won:
+    #         print(f'You guessed the word \'{self.game.word.upper()}\' in {self.game.num_guesses} tries!')
+    #     else:
+    #         print(f'Sorry, you lost! The word was: \'{self.game.word.upper()}\'')
+    #     self.message_printed = True
 
 def main(word_list, answer_list, model=None):
     # Load word lists and initialize the env
@@ -109,21 +113,22 @@ def main(word_list, answer_list, model=None):
     running = True
     message_printed = False  # To ensure message is printed once
     clock = pygame.time.Clock()
+    view = WordleView()
 
     while running:
-        draw_game(env.game) # Draw current game state
+        view.draw_game(env.game) # Draw current game state
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
                 
             elif model is None:
-                handle_input(env.game, event)  # Only process keyboard input if model is None
+                view.handle_input(env.game, event)  # Only process keyboard input if model is None
 
             
         if model is not None and not done:
             guess = model.get_guess(obs)
             env.game.current_guess = guess
-            draw_game(env.game)
+            view.draw_game(env.game)
             obs, _, done = env.step(guess)
             pygame.time.wait(1000)  # Wait 1s for visual clarity
 

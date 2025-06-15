@@ -1,16 +1,16 @@
 import torch
 import numpy as np
 
-from models.letterencoder import LetterEncoder
-from models.observationencoder import ObservationEncoder
-from models.sharedencoder import SharedEncoder
-from models.policyhead import PolicyHead
-from models.valuehead import ValueHead
-from envs.WordleGame import WordleGame
-from envs.WordleView import WordleView
-from envs.wordleenv import WordleEnv
-from utils.LoadList import load_word_list
-from utils.wordtoonehot import word_to_onehot
+from models.letter_encoder import LetterEncoder
+from models.observation_encoder import ObservationEncoder
+from models.shared_encoder import SharedEncoder
+from models.policy_head import PolicyHead
+from models.value_head import ValueHead
+from envs.wordle_game import WordleGame
+from envs.wordle_view import WordleView
+from envs.wordle_env import WordleEnv
+from utils.load_list import load_word_list
+from utils.word_to_onehot import word_to_onehot
 
 answer_list = load_word_list('../data/5letteranswersshuffled.txt')
 word_list = answer_list

@@ -1,16 +1,13 @@
 import torch
 import numpy as np
 
-from models.letter_encoder import LetterEncoder
-from models.observation_encoder import ObservationEncoder
-from models.shared_encoder import SharedEncoder
-from models.policy_head import PolicyHead
-from models.value_head import ValueHead
+from models.wordle_actor_critic import WordleActorCritic
 from envs.wordle_game import WordleGame
 from envs.wordle_view import WordleView
 from envs.wordle_env import WordleEnv
 from utils.load_list import load_word_list
 from utils.word_to_onehot import word_to_onehot
+
 
 answer_list = load_word_list('../data/5letteranswersshuffled.txt')
 word_list = answer_list
@@ -29,17 +26,8 @@ def demo_wordle_game(word: str):
 
     word_matrix = torch.stack([word_to_onehot(w) for w in word_list]).to(device)  # shape: [vocab_size, 130]
 
-    letter_encoder = LetterEncoder().to(device)
-    observation_encoder = ObservationEncoder(letter_encoder, vocab_size=len(word_list)).to(device)
-    shared_encoder = SharedEncoder().to(device)
-    policy_head = PolicyHead().to(device)
-    value_head = ValueHead().to(device)
-
-    letter_encoder.load_state_dict(model["letter_encoder"])
-    observation_encoder.load_state_dict(model["observation_encoder"])
-    shared_encoder.load_state_dict(model["shared_encoder"])
-    policy_head.load_state_dict(model["policy_head"])
-    value_head.load_state_dict(model["value_head"])
+    actor_critic = WordleActorCritic().to(device)
+    actor_critic = model.load_state_dict(model['model'])
 
     # Get the model's guess
     with torch.no_grad():
@@ -47,7 +35,7 @@ def demo_wordle_game(word: str):
         obs_list = env.reset()
 
         # Compute logits
-        logits, _ = model(obs_list, word_matrix)
+        logits, _ = actor_critic(obs_list, word_matrix)
         actions = torch.argmax(logits, dim=-1).tolist()
 
         # Get the guessed words

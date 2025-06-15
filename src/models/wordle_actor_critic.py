@@ -1,17 +1,29 @@
 import torch
 import torch.nn as nn
-from models.obssharedwrapper import ObservationSharedWrapper
+from models.obs_shared_wrapper import ObservationSharedWrapper
+from models.policy_head import PolicyHead
+from models.value_head import ValueHead
 
-# Wrapper that takes in every component of the model architecture into one class
-# Given an observation batch, and word encodings, produces two outputs:
+# Wrapper that combines the functionality of all individual components into one, such that given an observation, it will produce:
 # 1. Logits over each action (word), i.e. the policy output
 # 2. Value prediction, i.e. the value output
+# For convenience, none of the components need to be given on construction, i.e. any component set to none will be instantiated with
+# default parameters
 class WordleActorCritic(nn.Module):
-    def __init__(self, observation_encoder, shared_encoder, policy_head, value_head):
+    def __init__(self, observation_encoder=None, shared_encoder=None, policy_head=None, value_head=None):
         super().__init__()
+            
         self.obs_shared = ObservationSharedWrapper(observation_encoder, shared_encoder)
-        self.policy_head = policy_head
-        self.value_head = value_head
+        
+        if policy_head is not None:
+            self.policy_head = policy_head
+        else:
+            self.policy_head = PolicyHead()
+        
+        if value_head is not None:
+            self.value_head = value_head
+        else:
+            self.value_head = ValueHead()
 
     # Given an observation batch, and word encodings, produces two outputs:
     # 1. Logits over each action (word), i.e. the policy output

@@ -13,8 +13,9 @@ class CNNSharedEncoder(nn.Module):
         grid [B, 6, 5, embed_dim]
         meta [B, 2]
     return:
-    produces a fused representation using:
-        conv2d --> ReLU --> flatten
+    produces a fused representation using a set number of convolutions on the grid with specified channels 
+    with relu activation at each step, before flattening and concatenating with the meta vector and passing
+    thru an FFN
     '''
     def __init__(self,
                 per_cell_dim: int = 19, # = letter_embed_dim + 3
@@ -45,7 +46,7 @@ class CNNSharedEncoder(nn.Module):
             nn.ReLU(inplace=False),
         )
 
-    # forward pass
+    # forward pass - given grid and meta vector, produces latent vector
     def forward(self, grid, meta):
         # grid: [B, 6, 5, D]
 

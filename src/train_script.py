@@ -23,7 +23,7 @@ word_matrix = torch.stack([word_to_onehot(w) for w in word_list]).to(device)  # 
 actor_critic = WordleActorCritic().to(device)
 
 # optimizer
-optimizer = torch.optim.Adam(params=actor_critic.parameters(), lr=2e-4)
+optimizer = torch.optim.Adam(params=actor_critic.parameters(), lr=3e-4)
 
 # which epoch to start at
 start_epoch = 0

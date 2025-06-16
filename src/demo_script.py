@@ -11,7 +11,7 @@ from envs.wordle_env import WordleEnv
 from utils.load_list import load_word_list
 from utils.word_to_onehot import word_to_onehot
 
-
+# Load answer list and word list
 answer_list = load_word_list('data/5_letter_answers_shuffled.txt')
 word_list = answer_list
 
@@ -31,8 +31,8 @@ def demo_wordle_game(word: str):
     view.draw_game()
 
     # Load the trained model from pth file
-    device = torch.device('cpu')
-    model_path = 'checkpoints/best_model.pth'
+    device = torch.device('cpu') # change as needed
+    model_path = 'checkpoints/best_model.pth' # change as needed
     checkpoint = torch.load(model_path)
 
     word_matrix = torch.stack([word_to_onehot(w) for w in word_list]).to(device)  # shape: [vocab_size, 130]
@@ -62,6 +62,7 @@ def demo_wordle_game(word: str):
             message_printed = True
 
         clock.tick(30)
+        
     # close the game
     pygame.quit()
     sys.exit()

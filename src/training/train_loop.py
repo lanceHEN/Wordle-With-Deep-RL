@@ -38,7 +38,6 @@ def training_loop(
     fifo_queue=deque(maxlen=20), # size of the FIFO queue to store challenging words
     fifo_threshold=5, # minimum number of required guesses to add a word to the FIFO queue
     fifo_percentage=0.2, # percentage of words in the environment that should be devoted to FIFO words
-    scheduler=None, # optional scheduler for optimizer
 ):
     
     os.makedirs(save_dir, exist_ok=True) # make sure checkpoint dir exists
@@ -111,12 +110,6 @@ def training_loop(
                     writer=writer,
                     global_step=epoch * ppo_epochs + ppo_epoch
                 )
-
-          
-        #continue   
-        # update schedulers
-        if scheduler:
-            scheduler.step()
         
         if epoch % eval_and_save_per == 0: # evaluate and save state
             print("Evaluating policy on all answers...")
@@ -133,16 +126,10 @@ def training_loop(
             
             # save model state
             checkpoint = {
-                "letter_encoder": actor_critic.obs_shared.observation_encoder.letter_encoder.state_dict(),
-                "observation_encoder": actor_critic.obs_shared.observation_encoder.state_dict(),
-                "shared_encoder": actor_critic.obs_shared.shared_encoder.state_dict(),
-                "policy_head": actor_critic.policy_head.state_dict(),
-                "value_head": actor_critic.value_head.state_dict(),
+                "model": actor_critic.state_dict(),
                 "optimizer": optimizer.state_dict(),
                 "epoch": epoch,
             }
-            if scheduler:
-                checkpoint["scheduler"] = scheduler.state_dict()
             torch.save(checkpoint, os.path.join(save_dir, f"checkpoint_epoch_{epoch}.pth"))
             print("Model state saved!")
             

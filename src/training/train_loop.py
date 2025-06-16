@@ -26,7 +26,7 @@ def training_loop(
     word_matrix, # one hot embeddings for every word in word_list, as a [len(word_list), 130] torch tensor
     save_dir, # directory to save the model parameters
     log_dir, # directory to save tensorboard logs
-    num_epochs=1000, # number of overall epochs
+    num_epochs=300, # number of overall epochs
     start_epoch=0, # epoch to start (useful for resuming training)
     ppo_epochs=4, # how many ppo epochs to run on a given set of observations
     eval_and_save_per=20, # how often, in # epochs, to evaluate model performance on all words in answer_list and save the state

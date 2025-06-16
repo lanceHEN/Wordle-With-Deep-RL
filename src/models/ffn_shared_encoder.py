@@ -5,9 +5,9 @@ import torch.nn as nn
 # and a batched 1d tensor representing the turn and number of candidates remaining for each batch item of shape [B, 2],
 # produces latent vector representations (for each batch item) with the given output dimension, output_dim
 # this is a simple MLP in practice, taking in the flatten grid concatenated with the 1d additional info tensor
-class SharedEncoder(nn.Module):
+class FFNSharedEncoder(nn.Module):
     
-    # initializes a SharedEncoder with the given embedding dimension, and hidden dimensions
+    # initializes a FFNSharedEncoder with the given embedding dimension, and hidden dimensions
     def __init__(self, embed_dim=19, hidden_dim=512, output_dim=256):
         super().__init__()
         self.input_dim = 6 * 5 * embed_dim + 2

@@ -15,7 +15,7 @@ class ModelWrapper:
         self.word_matrix = word_matrix.to(device)
         self.device = device
 
-    # Given an observation, produces the model's guess for it
+    # Given an observation, produces the model's 5-letter guess for it
     def get_guess(self, obs):
         # Prepare observation in batch form
         obs_batch = [obs]

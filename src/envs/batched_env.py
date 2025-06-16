@@ -1,12 +1,11 @@
-import random
 from envs.wordle_env import WordleEnv
 
-# this class allows for a batch of wordle environments together, using the same reset and step methods
+# this class allows for a batch of wordle environments together, using the same reset and step methods as in WordleEnv
 # this was done to enable quicker trajectory collection and training time
 # made in part with generative AI
 class BatchedWordleEnv:
     
-    # given an environment class (e.g. WordleEnv), word list, answer list, batch size, win reward, lose reward, and info gain coefficient,
+    # given an environment class (e.g. WordleEnv), word list, answer list, batch size, win reward, and lose reward,
     # produces a BatchedWordleEnv, a batched set of environments each with the given word list, answer list, batch size, env class, win reward,
     # and lose reward, with the given number of batches
     def __init__(self, word_list, answer_list, batch_size, env_class=WordleEnv, win_reward=20, lose_reward=-10):

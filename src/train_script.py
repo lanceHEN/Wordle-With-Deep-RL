@@ -12,7 +12,7 @@ from models.wordle_actor_critic import WordleActorCritic
 from training.trajectory_collector import generate_trajectory
 from training.ppo_trainer import ppo_update
 from training.train_loop import training_loop
-from training.eval import evaluate_policy_on_all_answers
+from eval.eval import evaluate_policy_on_all_answers
 import torch
 import random
 from collections import deque

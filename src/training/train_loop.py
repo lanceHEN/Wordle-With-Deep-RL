@@ -3,7 +3,7 @@ from tqdm import trange
 from training.trajectory_collector import generate_batched_trajectories
 from training.ppo_trainer import ppo_update
 import random
-from training.eval import evaluate_policy_on_all_answers
+from eval.eval import evaluate_policy_on_all_answers
 from envs.batched_env import BatchedWordleEnv
 import os
 from torch.utils.tensorboard import SummaryWriter

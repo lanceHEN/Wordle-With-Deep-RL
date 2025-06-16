@@ -11,7 +11,7 @@ class WordleEnv:
         list of lists of "green", "yellow" or "gray" feedback results
     2. 'turn_number', mapping to the current turn in the game
     3. 'valid_indices', which maps to a list of indices of words in the given word_list that do not contradict existing feedback
-    The agent earns a specified win reward if they win, a lose reward if they lose, and an intermediate reward of -1 for incorrect guesses.
+    The agent earns a specified win reward if they win, a lose reward if they lose, and an intermediate reward of -1 otherwise
     '''
     
     def __init__(self, word_list, answer_list, win_reward=20, lose_reward=-10):
@@ -46,7 +46,7 @@ class WordleEnv:
     def step(self, guess: str):
         '''
         Take a step in the environment to make an action by trying a guess. Rewards are +20 for winning, -10 for losing
-        and -1 + 0.1*(normalized_info_gain)
+        and -1 otherwise
         args:
             guess: 5-letter word guess
         returns:

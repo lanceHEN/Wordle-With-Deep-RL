@@ -162,7 +162,7 @@ checkpoint = torch.load("checkpoints/test_comprehensive_save/checkpoint_epoch_0.
 actor_critic.load_state_dict(checkpoint["model"])
 
 # get model wrapper for easy interfacing
-model = ModelWrapper(actor_critic, word_list, word_matrix, device)
+model = ModelWrapper(word_list, word_matrix, model=actor_critic device=device)
 
 if __name__ == '__main__':
     main(word_list, answer_list, model=model) # set model to none for human play

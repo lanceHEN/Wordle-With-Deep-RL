@@ -4,9 +4,9 @@ import torch.nn.functional as F
 
 # given batched observations (as a list), produces numerical representations friendly for inputs to a neural network
 # in particular, produces:
-# 1. grid tensor: a [6 x 5 x letter_embed_dim + 3] tensor, storing letter (embeddings from the given LetterEncoder)
+# 1. grid tensor: a [B x 6 x 5 x letter_embed_dim + 3] tensor, storing letter (embeddings from the given LetterEncoder)
 # and feedback (one hot) data for every position in the game (filled or unfilled), for each in the batch
-# 2. meta vector: a [2] vector storing the current turn and number of candidate words remaining (divided by total vocab size of word/guess list) for the particular
+# 2. meta vector: a [B x 2] vector storing the current turn and number of candidate words remaining (divided by total vocab size of word/guess list) for the particular
 # game in the batch
 class ObservationEncoder(nn.Module):
     

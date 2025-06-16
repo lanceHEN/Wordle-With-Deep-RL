@@ -4,9 +4,9 @@ import torch.nn.functional as F
 
 # given a particular observation, produces numerical representations friendly for input to a neural network
 # in particular, produces:
-# 1. a [6 x 5 x letter_embed_dim + 3] tensor, storing letter (embeddings from the given LetterEncoder)
+# 1. grid tensor: a [6 x 5 x letter_embed_dim + 3] tensor, storing letter (embeddings from the given LetterEncoder)
 # and feedback (one hot) data for every position in the game (filled or unfilled)
-# 2. a [2] vector storing the current turn and number of candidate words remaining (divided by total vocab size of word (not guesses) list)
+# 2. meta vector: a [2] vector storing the current turn and number of candidate words remaining (divided by total vocab size of word/guess list)
 class ObservationEncoder(nn.Module):
     
     # Initializes an ObservationEncoder with the given LetterEncoder and vocab size
@@ -27,7 +27,7 @@ class ObservationEncoder(nn.Module):
     # in particular, produces:
     # 1. [B x 6 x 5 x letter_embed_dim + 3] tensor, storing letter (embeddings from the given LetterEncoder)
     # and feedback (one hot) data for every position in the game (filled or unfilled)
-    # 2. a [B x 2] vector storing the current turn and number of candidate words remaining (divided by total vocab size of word (not guesses) list)
+    # 2. a [B x 2] vector storing the current turn and number of candidate words remaining (divided by total vocab size of word/guess list)
     # made in part with generative AI
     def forward(self, obs_batch):
         device = next(self.parameters()).device
@@ -35,7 +35,7 @@ class ObservationEncoder(nn.Module):
     
         letter_tensor = torch.zeros((batch_size, 6, 5), dtype=torch.long, device=device)
         feedback_tensor = torch.zeros((batch_size, 6, 5, self.feedback_dim), dtype=torch.float32, device=device)
-        meta_tensor = torch.zeros((batch_size, 2), dtype=torch.float32, device=device)
+        meta_vector = torch.zeros((batch_size, 2), dtype=torch.float32, device=device)
     
         fb_map = {"gray": 0, "yellow": 1, "green": 2}
     
@@ -44,9 +44,9 @@ class ObservationEncoder(nn.Module):
                 for i, (char, fb) in enumerate(zip(word, feedback)):
                     letter_tensor[b, t, i] = ord(char) - ord('a')
                     feedback_tensor[b, t, i, fb_map[fb]] = 1.0
-            meta_tensor[b, 0] = obs["turn_number"]
-            meta_tensor[b, 1] = len(obs["valid_indices"]) / self.vocab_size
+            meta_vector[b, 0] = obs["turn_number"]
+            meta_vector[b, 1] = len(obs["valid_indices"]) / self.vocab_size
 
         letter_embs = self.letter_encoder(letter_tensor)  # [B, 6, 5, embed_dim]
-        encoded_grid = torch.cat([letter_embs, feedback_tensor], dim=-1)  # [B, 6, 5, embed_dim + 3]
-        return encoded_grid, meta_tensor
+        grid_tensor = torch.cat([letter_embs, feedback_tensor], dim=-1)  # [B, 6, 5, embed_dim + 3]
+        return grid_tensor, meta_vector

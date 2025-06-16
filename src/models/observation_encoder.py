@@ -2,11 +2,12 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-# given a particular observation, produces numerical representations friendly for input to a neural network
+# given batched observations (as a list), produces numerical representations friendly for inputs to a neural network
 # in particular, produces:
 # 1. grid tensor: a [6 x 5 x letter_embed_dim + 3] tensor, storing letter (embeddings from the given LetterEncoder)
-# and feedback (one hot) data for every position in the game (filled or unfilled)
-# 2. meta vector: a [2] vector storing the current turn and number of candidate words remaining (divided by total vocab size of word/guess list)
+# and feedback (one hot) data for every position in the game (filled or unfilled), for each in the batch
+# 2. meta vector: a [2] vector storing the current turn and number of candidate words remaining (divided by total vocab size of word/guess list) for the particular
+# game in the batch
 class ObservationEncoder(nn.Module):
     
     # Initializes an ObservationEncoder with the given LetterEncoder and vocab size
@@ -26,8 +27,9 @@ class ObservationEncoder(nn.Module):
     # given batched observations (as a list), produces numerical representations friendly for inputs to a neural network
     # in particular, produces:
     # 1. [B x 6 x 5 x letter_embed_dim + 3] tensor, storing letter (embeddings from the given LetterEncoder)
-    # and feedback (one hot) data for every position in the game (filled or unfilled)
-    # 2. a [B x 2] vector storing the current turn and number of candidate words remaining (divided by total vocab size of word/guess list)
+    # and feedback (one hot) data for every position in the game (filled or unfilled), across each batch item
+    # 2. a [B x 2] vector storing the current turn and number of candidate words remaining (divided by total vocab size of word/guess list),
+    # for the batch items
     # made in part with generative AI
     def forward(self, obs_batch):
         device = next(self.parameters()).device

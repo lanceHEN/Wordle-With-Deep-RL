@@ -33,7 +33,7 @@ class WordleActorCritic(nn.Module):
         
         valid_indices_batch = [obs["valid_indices"] for obs in obs_batch]
         h = self.obs_shared(obs_batch)  # [B, hidden_dim]
-        query = self.policy_head(h, valid_indices_batch)  # [B, V]
+        query = self.policy_head(h)  # [B, V]
         
         # Compute logits via dot product with all word embeddings
         logits = query @ word_encodings.T  # [B, vocab_size]

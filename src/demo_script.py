@@ -1,7 +1,10 @@
 import torch
 import numpy as np
+import pygame
+import sys
 
 from models.wordle_actor_critic import WordleActorCritic
+from models.wordle_model_wrapper import ModelWrapper
 from envs.wordle_game import WordleGame
 from envs.wordle_view import WordleView
 from envs.wordle_env import WordleEnv
@@ -9,58 +12,64 @@ from utils.load_list import load_word_list
 from utils.word_to_onehot import word_to_onehot
 
 
-answer_list = load_word_list('../data/5letteranswersshuffled.txt')
+answer_list = load_word_list('data/5_letter_answers_shuffled.txt')
 word_list = answer_list
 
-# To demo the model playing a game of Wordle
 def demo_wordle_game(word: str):
-    '''Demo a game of Wordle, where the model plays against a fixed word.'''
+    '''Demo a visual game of Wordle, where the model plays against a fixed word.'''
     
-    # Initialize the game with a fixed word
-    game = WordleGame(word_list=word_list, answer_list=word_list, word='apple')
+    # Initialize the env with a fixed word
+    env = WordleEnv(word_list=word_list, answer_list=word_list)
+    obs = env.reset(word=word)
+    done = False
+    
+    # Initialize the view and relevant variables
+    view = WordleView(game = env.game)
+    message_printed = False  # To ensure message is printed once
+    clock = pygame.time.Clock()
+    
+    view.draw_game()
 
     # Load the trained model from pth file
     device = torch.device('cpu')
-    model_path = 'checkpoint_epoch_790.pth'
-    model = torch.load(model_path)
+    model_path = 'checkpoints/best_model.pth'
+    checkpoint = torch.load(model_path)
 
     word_matrix = torch.stack([word_to_onehot(w) for w in word_list]).to(device)  # shape: [vocab_size, 130]
 
     actor_critic = WordleActorCritic().to(device)
-    actor_critic = model.load_state_dict(model['model'])
-
-    # Get the model's guess
-    with torch.no_grad():
-        env = WordleEnv(word_list, answer_list)
-        obs_list = env.reset()
-
-        # Compute logits
-        logits, _ = actor_critic(obs_list, word_matrix)
-        actions = torch.argmax(logits, dim=-1).tolist()
-
-        # Get the guessed words
-        guess_words = [word_list[a] for a in actions]
-
-    # Play the game with the model's guesses
-    for guess in guess_words:
-        # Check if the game is over
-        if game.is_game_over():
-            break
-        
-        # Play the guess in the game
-        print(f'Guessing: {guess}')
-        game.play_guess(guess)
-        game.render()
+    actor_critic.load_state_dict(checkpoint['model'])
     
-    # Print the final result
-    if game.is_won:
-        print(f'You guessed the word \'{game.word.upper()}\' in {game.num_guesses} guesses!')
-    else:
-        print(f'Sorry, you lost! The word was: \'{game.word.upper()}\'')
+    model = ModelWrapper(word_list, word_matrix, model=actor_critic, device=device)
+    
+    # play the game to completion
+    while not done:
+        
+        guess = model.get_guess(obs)
+        # update current guess in view
+        env.game.current_guess = guess
+        view.draw_game()
+        pygame.time.wait(1000)  # Wait 1s for visual clarity
+        obs, _, done = env.step(guess)
+        view.draw_game()
+        
+        # Print game end messages
+        if done and not message_printed:
+            if env.game.is_won:
+                print(f'Guessed the word \'{env.game.word.upper()}\' in {env.game.num_guesses} tries!')
+            else:
+                print(f'Loss! The word was: \'{env.game.word.upper()}\'')
+            message_printed = True
+
+        clock.tick(30)
+    # close the game
+    pygame.quit()
+    sys.exit()
+
 
 if __name__ == '__main__':
     # Choose a random word
-    word_list = load_word_list('../data/5letteranswersshuffled.txt')
+    word_list = load_word_list('data/5_letter_answers_shuffled.txt')
     random_word = word_list[np.random.randint(len(word_list))]
 
-    demo_wordle_game('apple') # Use random word or chosen word
+    demo_wordle_game(random_word) # Use random word or chosen word

@@ -1,7 +1,7 @@
 # Libraries
 import numpy as np
 
-# To represent the WordleGame class
+# To represent a playable game of Wordle
 class WordleGame:
 
     def __init__(self, word_list, answer_list, word=None):

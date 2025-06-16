@@ -28,6 +28,10 @@ optimizer = torch.optim.Adam(params=actor_critic.parameters(), lr=3e-4)
 # which epoch to start at
 start_epoch = 0
 
+# where to log checkpoints and tensorboard runs
+training_checkpoint_dir = "ENTER CHECKPOINT DIR FOR SAVING DURING TRAINING"
+training_logging_dir = "ENTER LOGGING DIR FOR TRAINING"
+
 # Uncomment the below lines if you want to restore a checkpoint
 '''
 checkpoint_dir = "ENTER CHECKPOINT DIR"
@@ -43,8 +47,6 @@ optimizer.load_state_dict(checkpoint["optimizer"])
 start_epoch = checkpoint["epoch"] + 1
 '''
 
-training_checkpoint_dir = "ENTER CHECKPOINT DIR FOR SAVING DURING TRAINING"
-training_logging_dir = "ENTER LOGGING DIR FOR TRAINING"
 
 # Train the model
 training_loop(BatchedWordleEnv(word_list, answer_list, batch_size=512), actor_critic, optimizer, word_list, answer_list, word_matrix, save_dir=training_checkpoint_dir,

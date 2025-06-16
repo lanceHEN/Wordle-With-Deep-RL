@@ -15,7 +15,7 @@ class CNNSharedEncoder(nn.Module):
     return:
     produces a fused representation using a set number of convolutions on the grid with specified channels 
     with relu activation at each step, before flattening and concatenating with the meta vector and passing
-    thru an FFN
+    thru an FFN with 2 hidden layers
     '''
     def __init__(self,
                 per_cell_dim: int = 19, # = letter_embed_dim + 3

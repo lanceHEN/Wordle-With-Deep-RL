@@ -1,13 +1,13 @@
 import torch
 from envs.wordle_env import WordleEnv
 
-# given an environment class, word list, answer list, word embeddings, model, batch_size and device,
+# given an environment class, word list, answer list, word embeddings, model, and batch_size,
 # evaluates model performance on every answer word, including win rate (% of time the answer is found in time)
 # and average guesses used
 # does this in batches with given batch_size to speed up computation
 # returns win rate and avg_guesses, in addition to printing them
 # made with help of generative AI
-def evaluate_policy_on_all_answers(env_class, word_list, answer_list, word_matrix, actor_critic, batch_size=512, device="cpu"):
+def evaluate_policy_on_all_answers(env_class, word_list, answer_list, word_matrix, actor_critic, batch_size=512):
     total_games = len(answer_list)
     total_wins = 0
     total_guesses = []
@@ -15,21 +15,16 @@ def evaluate_policy_on_all_answers(env_class, word_list, answer_list, word_matri
     with torch.no_grad():
         
         for batch_start in range(0, total_games, batch_size):
-            #print(batch_start)
             batch_answers = answer_list[batch_start:batch_start + batch_size]
-            #print("before reset")
-            #print("before construction")
+
             env = env_class(word_list, answer_list, batch_size=len(batch_answers)) # batch size should always beb exact
-            #print("constructed")
             obs_list = env.reset(starting_words=batch_answers)
-            #print("after reset")
 
             guesses = [0 for _ in range(len(batch_answers))]
             done_flags = [False] * len(batch_answers)
             won_flags = [False] * len(batch_answers)
             rewards = [0.0] * len(batch_answers)
 
-            #print("right before starting guesses")
             for _ in range(6):
                 if all(done_flags):
                     break

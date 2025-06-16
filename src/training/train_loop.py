@@ -125,8 +125,7 @@ def training_loop(
             word_list=word_list,
             answer_list=answer_list,
             word_matrix=word_matrix,
-            actor_critic=actor_critic,
-            device=device)
+            actor_critic=actor_critic)
             writer.add_scalar("Eval/win_rate", win_rate, epoch)
             writer.add_scalar("Eval/avg_guesses", avg_guesses, epoch)
             

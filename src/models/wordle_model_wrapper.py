@@ -15,12 +15,15 @@ class ModelWrapper:
         self.word_matrix = word_matrix.to(device)
         self.device = device
 
+    # Given an observation, produces the model's guess for it
     def get_guess(self, obs):
         # Prepare observation in batch form
         obs_batch = [obs]
 
+        # get logits
         with torch.no_grad():
             logits, _ = self.model(obs_batch, self.word_matrix)
 
+        # get the guess - largest logit <-> largest probability
         best_idx = torch.argmax(logits[0]).item()
         return self.word_list[best_idx]

@@ -40,7 +40,6 @@ class WordleView:
         else:
             return self.GRAY
 
-    # calculates 
     def calc_tile_posn(self, z, z_2) -> int:
         '''Calculate position of a tile.
         Args:

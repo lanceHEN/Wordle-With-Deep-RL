@@ -1,9 +1,9 @@
 import torch
 import torch.nn as nn
 
-# given batched 3d tensors representing the game grid (word and feedback) of shape [B, max_guesses, word_length, embed_dim]
-# and a batched 1d tensor representing the turn and number of candidates remaining of shape [B, 2],
-# produces latent vector representations (for each batch) with the given output dimension, output_dim
+# given batched 3d tensors representing the game grids (word and feedback) of shape [B, max_guesses, word_length, embed_dim]
+# and a batched 1d tensor representing the turn and number of candidates remaining for each batch item of shape [B, 2],
+# produces latent vector representations (for each batch item) with the given output dimension, output_dim
 # this is a simple MLP in practice, taking in the flatten grid concatenated with the 1d additional info tensor
 class SharedEncoder(nn.Module):
     
@@ -22,8 +22,8 @@ class SharedEncoder(nn.Module):
         )
     
     # given batched 3d tensors representing the game grid (word and feedback) of shape [B, max_guesses, word_length, embed_dim]
-    # and a batched 1d tensor representing the turn and number of candidates remaining of shape [B, 2],
-    # produces latent vector representations (for each batch) with the given output dimension, output_dim
+    # and a batched 1d tensor representing the turn and number of candidates remaining for each batch item of shape [B, 2],
+    # produces latent vector representations (for each batch item) with the given output dimension, output_dim
     def forward(self, grid, meta):
         B = grid.shape[0]
         flat_grid = grid.view(B, -1)  # [B, 6 * 5 * embed_dim]

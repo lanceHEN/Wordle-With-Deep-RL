@@ -2,11 +2,12 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-# given a letter, produces rich embeddings with the given dimension
+# given a letter, produces rich embeddings with the given dimension,
+# where similar letters will have similar vector representations
 # this is useful for computing word embeddings for the policy network
 # as well as for encoding the state by taking embeddings for each guessed letter (and concat with feedback)
 # note although this is esssentially an nn.Embedding, it is still its own class in case one would like to
-# produce word embeddings using letter embeddings
+# produce word embeddings using letter embeddings later on
 class LetterEncoder(nn.Module):
     
     # initializes a LetterEncoder with the given letter embedding dimension

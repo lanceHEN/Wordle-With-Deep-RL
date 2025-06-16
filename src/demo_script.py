@@ -6,7 +6,7 @@ import sys
 from models.wordle_actor_critic import WordleActorCritic
 from models.wordle_model_wrapper import ModelWrapper
 from envs.wordle_game import WordleGame
-from envs.wordle_view import WordleView
+from view.wordle_view import WordleView
 from envs.wordle_env import WordleEnv
 from utils.load_list import load_word_list
 from utils.word_to_onehot import word_to_onehot

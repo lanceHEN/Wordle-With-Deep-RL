@@ -1,10 +1,9 @@
 import torch
 import torch.nn as nn
 
-# given batched 3d tensors representing the game grids (word and feedback) of shape [B, max_guesses, word_length, embed_dim]
-# and a batched 1d tensor representing the turn and number of candidates remaining for each batch item of shape [B, 2],
-# produces latent vector representations (for each batch item) with the given output dimension, output_dim
-# this is a simple MLP in practice, taking in the flatten grid concatenated with the 1d additional info tensor
+# variation of Shared Encoder that uses a simple FFN. Given the (batched) grid tensor and meta vectors,
+# produces latent vector representations for use by the Policy or Value heads, by flattening
+# the grid, concatenating it with the meta vector, and passing through two fully connected layers.
 class FFNSharedEncoder(nn.Module):
     
     # initializes a FFNSharedEncoder with the given embedding dimension, and hidden dimensions
@@ -21,8 +20,8 @@ class FFNSharedEncoder(nn.Module):
             nn.ReLU(inplace=False)
         )
     
-    # given batched 3d tensors representing the game grid (word and feedback) of shape [B, max_guesses, word_length, embed_dim]
-    # and a batched 1d tensor representing the turn and number of candidates remaining for each batch item of shape [B, 2],
+    # given batched 3d tensors representing the game grids (word and feedback) of shape [B, max_guesses, word_length, embed_dim]
+    # and batched 1d meta tensors representing the turn and number of candidates remaining for each batch item of shape [B, 2],
     # produces latent vector representations (for each batch item) with the given output dimension, output_dim
     def forward(self, grid, meta):
         B = grid.shape[0]

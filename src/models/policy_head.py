@@ -14,7 +14,7 @@ class PolicyHead(nn.Module):
         super().__init__()
         self.linear = nn.Linear(hidden_dim, 5*26) # linear
 
-    # given batched latent vectors from the shared encoder, produces a query vector, which can then be
+    # given batched latent vectors from the shared encoder, produces a query vector for each batch item, which can then be
     # multiplied with all word embeddings for all guess words (via dot prod.) to produce logits (masked for valid word indices),
     # which one can softmax over to get prob. dists.
     def forward(self, h):

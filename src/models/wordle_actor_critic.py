@@ -5,7 +5,7 @@ from models.policy_head import PolicyHead
 from models.value_head import ValueHead
 
 # Wrapper that combines the functionality of all individual components into one, such that given an observation batch, it will produce:
-# 1. Logits over each action (word) for each batch state, i.e. the policy outputs, for each state in the batch
+# 1. Logits over each action (word) for each batch state, i.e. the policy outputs
 # 2. Value predictions, i.e. the value outputs, for each state in the batch
 # For convenience, none of the components need to be given on construction, i.e. any component set to none will be instantiated with
 # default parameters

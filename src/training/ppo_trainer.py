@@ -35,9 +35,6 @@ def ppo_update(
     # Forward pass
     logits, values = actor_critic(observations, word_matrix)
     #print("[ppo_update] after policy_head: query-related logits shape:", logits.shape)
-    
-    dist = Categorical(logits=logits)
-    entropy = dist.entropy().mean() # get entropy to encourage more exploratoin
 
     log_probs = F.log_softmax(logits, dim=-1)
     taken_log_probs = log_probs[torch.arange(len(actions), device=device), actions]

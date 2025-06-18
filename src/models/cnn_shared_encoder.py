@@ -2,10 +2,7 @@ import torch
 import torch.nn as nn
 '''
 cnnencoder.py:
-    Variation of Shared Encoder that has a Convolutional Neural Network front-end. Given the (batched) grid tensor and meta vectors,
-    produces latent vector representations for use by the Policy or Value heads, by applying convolutions on the grid before flattening
-    the result, concatenating it with the meta vector, and passing through an FFN.
-    
+    Variation of Shared Encoder that has a Convolutional Neural Network front-end.
     expects output of ObservationEncoder [B, 6, 5, per_cell_dim]
     expects meta [B, 2]
     returns [B, output_dim]
@@ -16,9 +13,9 @@ class CNNSharedEncoder(nn.Module):
         grid [B, 6, 5, embed_dim]
         meta [B, 2]
     return:
-    produces a fused representation using a set number of convolutions on the grid with specified channels 
-    with relu activation at each step, before flattening and concatenating with the meta vector and passing
-    thru an FFN with 2 hidden layers
+        a fused representation using a set number of convolutions on the grid with specified channels 
+        with relu activation at each step, before flattening and concatenating with the meta vector and passing
+        thru an FFN with 2 hidden layers
     '''
     def __init__(self,
                 per_cell_dim: int = 19, # = letter_embed_dim + 3

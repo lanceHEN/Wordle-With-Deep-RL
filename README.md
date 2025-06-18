@@ -52,7 +52,7 @@ Our implementation supports training with either a feedforward network (FFN) or 
     │   └── eval.py # Provides code to evaluate a model's average guesses and win rate
     ├── models
     │   ├── __init__.py
-    │   ├── cnn_encoder.py # A CNN implementation of the Shared Encoder
+    │   ├── cnn_shared_encoder.py # A CNN implementation of the Shared Encoder
     │   ├── ffn_shared_encoder.py # A FFN implementation of the Shared Encoder
     │   ├── letter_encoder.py # Learnable letter embeddings
     │   ├── obs_shared_wrapper.py # A wrapper around the Observation and Shared Encoder

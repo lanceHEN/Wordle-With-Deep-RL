@@ -13,20 +13,21 @@ We model Wordle as a Markov Decision Process (MDP) with:
 Training is conducted using PPO, which involves a neural network to pick actions from a probability distribution over them, consisting of:
 - **Observation Encoder**: Given an observed state dictionary, produces a numerical representation for neural networks consisting of:
   - A grid tensor, which stores learned encodings for letters and one-hot encodings for feedback at each position on the board
-  - A meta vector, which stores additional information including turn number and number of remaining valid guesses
+  - A meta vector, which stores additional information including turn number and number of remaining valid guesses (normalized)
 - **Shared Encoder**: Given a grid tensor and meta vector from the Observation Encoder, produces a latent vector representation for use by both the Policy and Value heads
 - **Policy Head**: Given the latent vector representation, produces a query vector which can then be multiplied with a matrix of word encodings to produce logits over each word (mask those for valid indices to $- \infty$), from which a probability distribution may be derived via softmax
 - **Value Head**: Given the latent vector representation, produces a scalar prediction of the value of the original state
 
 The actual PPO training scheme involves first collecting a number of episodes or trajectories from the environment, where each trajectory consists of states, actions, rewards, and other relevant values from full games. For each step in these episodes, we compute:
 
-- **Returns**: The total future reward received from that step onward (undiscounted in our case, since $\gamma = 1$).
+- **Returns**: The sum of current and future rewards from that step (undiscounted in our case, since $\gamma = 1$).
 - **Advantages**: The difference between actual return and predicted state value, used to measure how much better or worse the action performed than expected.
+  
 Training proceeds by updating the policy and value networks using mini-batches from these trajectories across several PPO epochs. The policy is updated by maximizing a clipped objective that prevents overly large updates, stabilizing learning. Meanwhile, the value network is trained to regress toward the actual returns.
 
-To promote learning from a diverse set of situations, we maintain a FIFO queue of previously collected trajectories, allowing each PPO update to incorporate both recent and slightly older experiences.
+To focus learning on challenging words, we maintain a FIFO queue storing words that took more than a fixed number of guesses to answer. Rather than generating solely random episodes, a fixed percentage of them are reserved to use words popped from the queue.
 
-Our implementation supports training with either a feedforward network (FFN) or a convolutional neural network (CNN) in the observation encoder.
+Our implementation supports training with either a feedforward network (FFN) or a convolutional neural network (CNN) in the shared encoder.
 
 ## Code Layout
 <pre>
@@ -101,7 +102,10 @@ pip install -r requirements.txt
 To watch the agent play, navigate to `src/demo_script.py`, adjust the word list, answer list, device, and model checkpoints as needed, and click run!
 
 ## Train the Agent!
-To begin training, navigate to `src/train_script.py` and configure your device, answer and word list, and optimizer as needed (we already have default options set up). You can then list directories for model checkpoints and tensorboard logging, and uncomment the lines as needed to load checkpoints later on. The final line will run the training loop, with plenty of options to play with like number of epochs, batch size, FIFO threshold, etc.
+To begin training, navigate to `src/train_script.py` and configure your device, answer and word list, and optimizer as needed (we already have default options set up). For convenience, we simply created a WordleActorCritic wrapper with default parameters, but you may explore different architecture choices by creating individual components like an ObservationEncoder, FFNSharedEncoder, CNNSharedEncoder, PolicyHead, or ValueHead and passing them into the WordleActorCritic constructor.
+
+
+You can then list directories for model checkpoints and tensorboard logging, and uncomment the following lines as needed to load checkpoints later on. The final line will run the training loop, with plenty of options to play with like number of epochs, batch size, FIFO threshold, etc.
 
 ## Evaluate the Agent!
 You can then evaluate the trained agent across all possible answers by running `evaluate_policy_on_all_answers` from ` src/eval/eval.py`, printing and returning average number of guesses and win rate.

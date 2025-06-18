@@ -2,10 +2,9 @@ import torch
 import torch.nn as nn
 '''
 cnnencoder.py:
-    Variation of Shared Encoder that has a Convolutional Neural Network front-end.
-    I.e. given batched 3d tensors representing the game grids (word and feedback) of shape [B, max_guesses, word_length, embed_dim]
-    and a batched 1d tensor representing the turn and number of candidates remaining for each batch item of shape [B, 2],
-    produces latent vector representations (for each batch item) with the given output dimension, output_dim, via CNN
+    Variation of Shared Encoder that has a Convolutional Neural Network front-end. Given the (batched) grid tensor and meta vectors,
+    produces latent vector representations for use by the Policy or Value heads, by applying convolutions on the grid before flattening
+    the result, concatenating it with the meta vector, and passing through an FFN.
     
     expects output of ObservationEncoder [B, 6, 5, per_cell_dim]
     expects meta [B, 2]
@@ -50,7 +49,10 @@ class CNNSharedEncoder(nn.Module):
             nn.ReLU(inplace=False),
         )
 
-    # forward pass - given grid and meta vector, produces latent vector
+    # given batched 3d tensors representing the game grids (word and feedback) of shape [B, max_guesses, word_length, embed_dim]
+    # and batched 1d tensors representing the turn and number of candidates remaining for each batch item of shape [B, 2],
+    # produces latent vector representations (for each batch item) with the given output dimension, output_dim, via CNN. This is done
+    # by applying convolutions on the grid, before flattening, concatenating with the meta vector, and passing through an FFN.
     def forward(self, grid, meta):
         # grid: [B, 6, 5, D]
 

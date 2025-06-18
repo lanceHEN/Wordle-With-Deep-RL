@@ -4,7 +4,7 @@ from models.observation_encoder import ObservationEncoder
 from models.ffn_shared_encoder import FFNSharedEncoder
 from models.letter_encoder import LetterEncoder
 
-# Wrapper class that combines the ObservationEncoder and Shared Encoder modules into one, allowing latent vectors to be produced
+# Wrapper class that combines the ObservationEncoder and Shared Encoder modules into one, allowing batched latent vectors to be produced
 # when given batched observations.
 # This can then be combined with either a PolicyHead or ValueHead.
 # For convenience, the ObservationEncoder and Shared Encoder do not have to be given on construction, they can be made on construction

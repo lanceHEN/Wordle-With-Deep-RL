@@ -1,6 +1,6 @@
 from envs.batched_env import BatchedWordleEnv
 from utils.load_list import load_word_list
-from utils.word_to_onehot import word_to_onehot
+from utils.word_to_encoding import word_to_encoding
 from models.wordle_actor_critic import WordleActorCritic
 from training.train_loop import training_loop
 import torch
@@ -17,7 +17,7 @@ word_list = answer_list
 # word_list = load_word_list('data/5_letter_words.txt')[:] # uncomment to use all 14,855 guess words
 
 # Load word matrix
-word_matrix = torch.stack([word_to_onehot(w) for w in word_list]).to(device)  # shape: [vocab_size, 130]
+word_matrix = torch.stack([word_to_encoding(w) for w in word_list]).to(device)  # shape: [vocab_size, 130]
 
 # Load model
 actor_critic = WordleActorCritic().to(device)
@@ -46,7 +46,6 @@ optimizer.load_state_dict(checkpoint["optimizer"])
 # Get last completed epoch
 start_epoch = checkpoint["epoch"] + 1
 '''
-
 
 # Train the model
 training_loop(BatchedWordleEnv(word_list, answer_list, batch_size=512), actor_critic, optimizer, word_list, answer_list, word_matrix, save_dir=training_checkpoint_dir,

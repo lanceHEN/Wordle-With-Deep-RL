@@ -9,7 +9,7 @@ from envs.wordle_game import WordleGame
 from view.wordle_view import WordleView
 from envs.wordle_env import WordleEnv
 from utils.load_list import load_word_list
-from utils.word_to_onehot import word_to_onehot
+from utils.word_to_encoding import word_to_encoding
 
 # Load answer list and word list
 answer_list = load_word_list('data/5_letter_answers_shuffled.txt')

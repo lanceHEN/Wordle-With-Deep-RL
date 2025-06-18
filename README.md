@@ -70,7 +70,7 @@ Our implementation supports training with either a feedforward network (FFN) or 
     ├── utils # A directory for random utility functions
     │   ├── __init__.py
     │   ├── load_list.py # Provides a function to load a word file into a list of strings
-    │   └── word_to_onehot.py # Provides a function to produce an encoding for a word as a concatenation of its one-hot letter encodings
+    │   └── word_to_encoding.py # Provides a function to produce an encoding for a word as a concatenation of its one-hot letter encodings
     └── view # A directory containing the playable view of the Wordle game
         ├── __init__.py
         └── wordle_view.py # A visual, playable Wordle game, which a human can interact with by running the main function

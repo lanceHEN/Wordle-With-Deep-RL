@@ -8,7 +8,7 @@ from models.letter_encoder import LetterEncoder
 # when given batched observations.
 # This can then be combined with either a PolicyHead or ValueHead.
 # For convenience, the ObservationEncoder and Shared Encoder do not have to be given on construction, they can be made on construction
-# if set to None (we by default make an FFNSharedEncoder)
+# if set to None (we by default make an FFNSharedEncoder).
 class ObservationSharedWrapper(nn.Module):
     
     def __init__(self, observation_encoder=None, shared_encoder=None):
@@ -23,8 +23,8 @@ class ObservationSharedWrapper(nn.Module):
         else:
             self.shared_encoder = shared_encoder
         
-    # given batched observations, produces batched latent vector representations to be fed either into policy head or value head
-    # in other words, this combines the forward pass for ObservationEncoder and SharedEncoder.
+    # Given batched observations, produces batched latent vector representations to be fed either into policy head or value head.
+    # In other words, this combines the forward pass for ObservationEncoder and SharedEncoder.
     def forward(self, batched_obs):
         # batched_obs: [B x 6 x 5 x letter_embed_dim + 3]
         encoded_grid, meta_tensor = self.observation_encoder(batched_obs)

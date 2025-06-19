@@ -6,7 +6,7 @@ import torch.nn.functional as F
 # friendly for inputs to a neural network
 class ObservationEncoder(nn.Module):
     
-    # Initializes an ObservationEncoder with the given LetterEncoder and vocab size
+    # Initializes an ObservationEncoder with the given LetterEncoder and vocab size.
     def __init__(self, letter_encoder, vocab_size=14855):
         super().__init__()
         self.vocab_size = vocab_size
@@ -20,13 +20,13 @@ class ObservationEncoder(nn.Module):
         # final per-cell embedding size = letter + feedback dim
         self.embed_dim = self.letter_encoder.letter_embed_dim + self.feedback_dim
 
-    # given batched observations (as a list), produces numerical representations friendly for inputs to a neural network
-    # in particular, produces:
-    # 1. grid tensor: a [B x 6 x 5 x letter_embed_dim + 3] tensor, storing letter (embeddings from the given LetterEncoder)
+    # Given batched observations (as a list), produces numerical representations friendly for inputs to a neural network.
+    # In particular, produces:
+    # 1. Grid tensor: a [B x 6 x 5 x letter_embed_dim + 3] tensor, storing letter (embeddings from the given LetterEncoder)
     # and feedback (one hot) data for every position in the game (filled or unfilled), for each in the batch
-    # 2. meta vector: a [B x 2] tensor storing the current turn and number of candidate words remaining (divided by total vocab size of word/guess list) for the particular
-    # game in the batch
-    # made in part with generative AI
+    # 2. Meta vector: a [B x 2] tensor storing the current turn and number of candidate words remaining (divided by total vocab size of word/guess list) for the particular
+    # game in the batch.
+    # Made in part with generative AI.
     def forward(self, obs_batch):
         device = next(self.parameters()).device
         batch_size = len(obs_batch)

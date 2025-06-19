@@ -21,7 +21,7 @@ class WordleView:
     TILE_SIZE = 60
     PADDING = 10
 
-    # initializes a WordleView, either with the a supplied game if given or with a new random one.
+    # Initializes a WordleView, either with the a supplied game if given or with a new random one.
     def __init__(self, game=None):
         pygame.init()
         self.FONT = pygame.font.Font(None, self.FONT_SIZE)
@@ -122,7 +122,7 @@ class WordleView:
                 if len(self.game.current_guess) < 5:
                     self.game.current_guess += event.unicode
 
-# Allows manual play of Wordle, updating the view with new user inputs and stopping when the game is over
+# Allows manual play of Wordle, updating the view with new user inputs and stopping when the game is over.
 def main():
     # Load word lists and initialize the game
     running = True
@@ -151,6 +151,6 @@ def main():
     pygame.quit()
     sys.exit()
 
-# Manually play a game of wordle
+# Manually play a game of Wordle.
 if __name__ == '__main__':
     main()

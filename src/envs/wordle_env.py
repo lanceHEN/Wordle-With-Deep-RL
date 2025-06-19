@@ -12,35 +12,36 @@ class WordleEnv:
     2. 'turn_number', mapping to the current turn in the game
     3. 'valid_indices', which maps to a list of indices of words in the given word_list that do not contradict existing feedback
     The agent earns a specified win reward if they win, a lose reward if they lose, and an intermediate reward of -1 otherwise
+    Essentially, the goal is for the learning agent to maximize return by solving Wordle in as few guesses as possible.
     '''
     
     def __init__(self, word_list, answer_list, win_reward=20, lose_reward=-10):
         '''
-        Initializes a Wordle environment, with the given word list, answer list, and win reward
+        Initializes a Wordle RL environment, with the given word list, answer list, and win reward
         Args:
             word_list: list of valid guesses
-            answer_list: list of possible secret words
-            win_reward: reward for winning
-            lose_reward: reward for losing
+            answer_list: list of possible secret words/a smaller pool of words
+            win_reward: positive reward delivered for winning
+            lose_reward: negative reward delivered for losing
         '''
         self.word_list = word_list
         self.answer_list = answer_list
         self.game = None
-        self.candidate_words = []
-        self.word_to_idx = {word: i for i, word in enumerate(word_list)}
+        self.candidate_words = [] # list of answer words consistent with feedback
+        self.word_to_idx = {word: i for i, word in enumerate(word_list)} # translates a word to an integer index, useful for one-hot
         self.win_reward = win_reward
         self.lose_reward = lose_reward
 
     def reset(self, word: Optional[str] = None):
         '''
-        Resets the environment with a brand new game
+        Resets the environment with a brand new game by starting a new episode
         Args:
             word: optional secret word for testing
         Returns:
             The initial observation
         '''
         self.game = WordleGame(self.word_list, self.answer_list, word=word)
-        self.candidate_words = list(self.word_list)
+        self.candidate_words = list(self.word_list) # at t = 0 every word is a viable candidate
         return self._get_obs()
     
     def step(self, guess: str):
@@ -50,7 +51,7 @@ class WordleEnv:
         Args:
             guess: 5-letter word guess
         Returns:
-            A tuple of (obs, reward, done), where obs is a dict with three keys:
+            A transition tuple of (obs, reward, done), where obs is a dict with three keys:
             1. 'feedback', which maps to a list of (guess, results) tuples, where guess is the guessed word and results is a
                 list of lists of "green", "yellow", or "gray" feedback results
             2. 'turn_number', mapping to the current turn in the game
@@ -59,40 +60,41 @@ class WordleEnv:
         # Plays given guess
         self.game.play_guess(guess)
 
-        # Gets feedback
+        # Fetches feedback
         feedback = self.game.get_feedback()
-        latest_guess, latest_result = feedback[-1]
+        latest_guess, latest_result = feedback[-1] # The newest feedback tuple corresponds to a guess
         
         # Filters candidate_words by keeping candidates consistent with the feedback
         self._filter_cands(latest_guess, latest_result)
         
-        # Reward
+        # Computes reward signal
         if self.game.is_game_over():
             if self.game.is_won:
                 reward = self.win_reward  # If guess is correct
             else:
                 reward = self.lose_reward  # Game is lost
         else:
-            reward = -1 # If guess is incorrect
+            reward = -1 # If guess is incorrect --> a time penalty pushes the agent to shorter solutions
         
-        # Return obs and done
+        # Returns the observation and packages the output
         obs = self._get_obs()
         done = self.game.is_game_over()
         
         return obs, reward, done
     
     
-    # Other implementation: create a mask
+    # Other implementation: creating a mask
     def _get_obs(self):
         '''
-        get observation of the current env state
-        returns:
+        Gets an observation of the current env state, compiled into a model-friendly structure
+        Returns:
             dict:
             - feedback: list of tuples
-            - turn_number: current turn num
-            - candidate_indices: indices of candidate words in original word_list
+            - turn_number: current turn number
+            - candidate_indices: indices of candidate words in the original word_list
         '''
-        if self.game is None:
+        # If the environment hasn't been set yet, it provides an empty placeholder to do so
+        if self.game is None: 
             return {
                 'feedback': [],
                 'turn_number': 0,

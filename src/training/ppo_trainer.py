@@ -2,7 +2,7 @@ import torch
 import torch.nn.functional as F
 from torch.distributions import Categorical
 
-# made in part with generative AI
+# Made in part with generative AI.
 def ppo_update(
     actor_critic, # ActorCritic model
     optimizer, # optimizer

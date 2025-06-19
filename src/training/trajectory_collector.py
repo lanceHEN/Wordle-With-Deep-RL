@@ -3,7 +3,7 @@ from torch.distributions import Categorical
 import random
 import itertools
 
-# made with help of generative AI
+# Made with help of generative AI.
 def generate_trajectory(env, word_list, actor_critic, word_matrix, device="cpu", gamma=1):
     """
     Simulates one episode of Wordle using the current policy.
@@ -73,7 +73,7 @@ def generate_trajectory(env, word_list, actor_critic, word_matrix, device="cpu",
             "valid_indices": valid_indices_all
         }
 
-# made with help of generative AI
+# Made with help of generative AI.
 def compute_advantages(rewards, values, gamma=1, device="cpu"):
     """
     Computes simple advantages and returns.
@@ -100,7 +100,7 @@ def compute_advantages(rewards, values, gamma=1, device="cpu"):
 
     return advantages, returns
 
-# made with help of generative AI
+# Made with help of generative AI.
 def generate_batched_trajectories(
     batched_env,
     word_list,

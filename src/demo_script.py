@@ -11,7 +11,7 @@ from envs.wordle_env import WordleEnv
 from utils.load_list import load_word_list
 from utils.word_to_encoding import word_to_encoding
 
-# Load answer list and word list
+# Load answer list and word list.
 answer_list = load_word_list('data/5_letter_answers_shuffled.txt')
 word_list = answer_list
 # word_list = load_word_list('data/5_letter_words.txt')[:] # uncomment to use all 14,855 guess words
@@ -19,19 +19,19 @@ word_list = answer_list
 def demo_wordle_game(word, device, model_path):
     '''Demo a visual game of Wordle, where the model plays against a fixed word.'''
     
-    # Initialize the env with a fixed word
+    # Initialize the env with a fixed word.
     env = WordleEnv(word_list=word_list, answer_list=word_list)
     obs = env.reset(word=word)
     done = False
     
-    # Initialize the view and relevant variables
+    # Initialize the view and relevant variables.
     view = WordleView(game = env.game)
     message_printed = False  # To ensure message is printed once
     clock = pygame.time.Clock()
     
     view.draw_game()
 
-    # Load the trained model from pth file
+    # Load the trained model from pth file.
     checkpoint = torch.load(model_path)
 
     word_matrix = torch.stack([word_to_encoding(w) for w in word_list]).to(device)  # shape: [vocab_size, 130]
@@ -41,7 +41,7 @@ def demo_wordle_game(word, device, model_path):
     
     model = ModelWrapper(word_list, word_matrix, model=actor_critic, device=device)
     
-    # play the game to completion
+    # Play the game to completion.
     while not done:
         
         guess = model.get_guess(obs)
@@ -68,8 +68,8 @@ def demo_wordle_game(word, device, model_path):
 
 
 if __name__ == '__main__':
-    # Choose a random word
+    # Choose a random word.
     word_list = load_word_list('data/5_letter_answers_shuffled.txt')
     random_word = word_list[np.random.randint(len(word_list))]
 
-    demo_wordle_game(random_word, torch.device("cpu"), "checkpoints/best_model.pth") # Use random word or chosen word
+    demo_wordle_game(random_word, torch.device("cpu"), "checkpoints/best_model.pth") # Use random word or chosen word.

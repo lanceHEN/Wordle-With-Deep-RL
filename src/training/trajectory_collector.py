@@ -127,7 +127,7 @@ def generate_batched_trajectories(
     """
     batch_size = batched_env.batch_size
 
-    #FIFO implamentation, for the given percentage, portion of the batch will be trained on previously missed words
+    # FIFO implementation, for the given percentage, portion of the batch will be trained on previously missed words
     num_hard_words = int(batch_size * fifo_percentage)
     num_hard_words = min(num_hard_words, len(fifo_queue))
     # Grab the oldest words (FIFO order)

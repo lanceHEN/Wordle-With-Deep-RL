@@ -108,10 +108,10 @@ class WordleEnv:
             'turn_number': self.game.num_guesses,
             'valid_indices': candidate_indices }
     
-    # Additional method
+   
     def _filter_cands(self, guess: str, result: List[str]):
         ''' 
-        filters candidate words based on feedback from a guess 
+        Filters candidate words to only those that produce a result when a guess is made
         '''
         candidates_new = []
         
@@ -122,7 +122,7 @@ class WordleEnv:
     
     def _is_consistent(self, candidate: str, guess: str, result: List[str]) -> bool:
         '''
-        check if a candidate word is consistent w/ result and guess
+        Check if a candidate word is consistent with the result and guess (did it yield the result given guess)
         '''
         # Simulates the result if candidate_word was the secret word
         simulated_result = self._simulate_fb(candidate, guess)
@@ -130,7 +130,7 @@ class WordleEnv:
     
     def _simulate_fb(self, secret: str, guess: str) -> list[str]:
         '''
-        Simulates the feedback that would be given for a guess against secret word.
+        Simulates the feedback that would be given for a guess under an assumption that the secret word is the answer.
         This is useful to determine whether the given secret word has feedback matching up with actual feedback,
         and is also useful for filtering candidate words.
         '''
@@ -150,6 +150,7 @@ class WordleEnv:
             if guess_chars[i] is not None:
                 if guess_chars[i] in secret_chars:
                     result[i] = 'yellow'
+                    # Removes the first occurrence to handle duplicates
                     secret_chars[secret_chars.index(guess_chars[i])] = None
         
         return result

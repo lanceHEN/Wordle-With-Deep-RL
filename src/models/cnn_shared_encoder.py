@@ -25,7 +25,7 @@ class CNNSharedEncoder(nn.Module):
                 hidden_dim: int = 512,
                 output_dim: int = 256):
         super().__init__()
-        
+        # Convolutional stack over 6 x 5 img
         in_ch = per_cell_dim
         layers = []
         for out_ch in conv_channels:
@@ -38,7 +38,7 @@ class CNNSharedEncoder(nn.Module):
         
         self.flatten = nn.Flatten()
         
-        # fuses with meta tensor via Multilayer Perceptron
+        # fuses with meta tensor via Multilayer Perceptron (to combine conv features with meta)
         self.fuse = nn.Sequential(
             nn.Linear(in_ch * 6 * 5 + 2, hidden_dim),
             nn.LayerNorm(hidden_dim),
@@ -48,11 +48,14 @@ class CNNSharedEncoder(nn.Module):
             nn.ReLU(inplace=False),
         )
 
-    # given batched 3d tensors representing the game grids (word and feedback) of shape [B, max_guesses, word_length, embed_dim]
+    # Given batched 3d tensors representing the game grids (word and feedback) of shape [B, max_guesses, word_length, embed_dim]
     # and batched 1d tensors representing the turn and number of candidates remaining for each batch item of shape [B, 2],
     # produces latent vector representations (for each batch item) with the given output dimension, output_dim, via CNN. This is done
     # by applying convolutions on the grid, before flattening, concatenating with the meta vector, and passing through an FFN.
     def forward(self, grid, meta):
+        ''''
+        Returns a fused latent vector for each batch element.
+        '''
         # grid: [B, 6, 5, D]
 
         # rearrange so that guesses become channels (like color channels in images)

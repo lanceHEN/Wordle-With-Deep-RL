@@ -22,13 +22,13 @@ word_matrix = torch.stack([word_to_encoding(w) for w in word_list]).to(device)  
 # Load model
 actor_critic = WordleActorCritic().to(device)
 
-# optimizer
+# Define optimizer
 optimizer = torch.optim.Adam(params=actor_critic.parameters(), lr=3e-4)
 
-# which epoch to start at
+# Which epoch to start at
 start_epoch = 0
 
-# where to log checkpoints and tensorboard runs
+# Where to log checkpoints and tensorboard runs
 training_checkpoint_dir = "ENTER CHECKPOINT DIR FOR SAVING DURING TRAINING"
 training_logging_dir = "ENTER LOGGING DIR FOR TRAINING"
 

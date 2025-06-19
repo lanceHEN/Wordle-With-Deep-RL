@@ -1,8 +1,9 @@
 import torch
 import torch.nn as nn
 '''
-cnnencoder.py:
-    Variation of Shared Encoder that has uses a small 2D CNN to summarize the Wordle board
+cnn_shared_encoder.py:
+    Variation of Shared Encoder that uses a small 2D CNN to summarize the Wordle board. Using a CNN lets us share parameters spatially
+    so the network learns local patterns regardless of their absolute location. Serves as an alternate method to the FFN.
     expects output of ObservationEncoder [B, 6, 5, per_cell_dim]
     expects meta [B, 2]
     returns [B, output_dim]

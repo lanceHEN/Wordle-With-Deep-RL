@@ -1,12 +1,12 @@
 import torch
 from envs.wordle_env import WordleEnv
 
-# given an environment class, word list, answer list, word embeddings, model, and batch_size,
+# Given an environment class, word list, answer list, word embeddings, model, and batch_size,
 # evaluates model performance on every answer word, including win rate (% of time the answer is found in time)
-# and average guesses used
-# does this in batches with given batch_size to speed up computation
-# returns win rate and avg_guesses, in addition to printing them
-# made with help of generative AI
+# and average guesses used.
+# It does this in batches with given batch_size to speed up computation.
+# It returns the win rate and avg_guesses, in addition to printing them.
+# Made with help of generative AI.
 def evaluate_policy_on_all_answers(env_class, word_list, answer_list, word_matrix, actor_critic, batch_size=512):
     total_games = len(answer_list)
     total_wins = 0

@@ -53,7 +53,7 @@ class CNNSharedEncoder(nn.Module):
     # produces latent vector representations (for each batch item) with the given output dimension, output_dim, via CNN. This is done
     # by applying convolutions on the grid, before flattening, concatenating with the meta vector, and passing through an FFN.
     def forward(self, grid, meta):
-        ''''
+        '''
         Returns a fused latent vector for each batch element.
         '''
         # grid: [B, 6, 5, D]

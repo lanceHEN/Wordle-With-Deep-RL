@@ -10,10 +10,11 @@ cnn_shared_encoder.py:
 '''
 class CNNSharedEncoder(nn.Module):
     '''
-    given:
+    Encodes Wordle observations via Conv Net --> MLP fusion
+    Given:
         grid [B, 6, 5, embed_dim]
         meta [B, 2]
-    return:
+    Return:
         a fused representation using a set number of convolutions on the grid with specified channels 
         with relu activation at each step, before flattening and concatenating with the meta vector and passing
         thru an FFN with 2 hidden layers

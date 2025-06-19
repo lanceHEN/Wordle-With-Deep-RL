@@ -1,13 +1,13 @@
 from envs.wordle_env import WordleEnv
 
-# this class allows for a batch of wordle environments together, using the same reset and step methods as in WordleEnv
-# this was done to enable quicker trajectory collection and training time
-# made in part with generative AI
+# This class allows for a batch of wordle environments together, using the same reset and step methods as in WordleEnv.
+# This was done to enable quicker trajectory collection and training time.
+# Made in part with generative AI.
 class BatchedWordleEnv:
     
-    # given an environment class (e.g. WordleEnv), word list, answer list, batch size, win reward, and lose reward,
+    # Given an environment class (e.g. WordleEnv), word list, answer list, batch size, win reward, and lose reward,
     # produces a BatchedWordleEnv, a batched set of environments each with the given word list, answer list, batch size, env class, win reward,
-    # and lose reward, with the given number of batches
+    # and lose reward, with the given number of batches.
     def __init__(self, word_list, answer_list, batch_size, env_class=WordleEnv, win_reward=20, lose_reward=-10):
         self.envs = [env_class(word_list, answer_list, win_reward=win_reward, lose_reward=lose_reward) for _ in range(batch_size)]
         self.batch_size = batch_size
@@ -18,8 +18,8 @@ class BatchedWordleEnv:
         self.current_obs = [env.reset() for env in self.envs]
         self.dones = [False] * batch_size
 
-    # resets across each env in the batch, and returns the observations for each
-    # if starting words specified, starts each env with those starting words.
+    # Resets across each env in the batch, and returns the observations for each.
+    # If starting words specified, starts each env with those starting words.
     def reset(self, starting_words=None):
         if starting_words:
             self.current_obs = [
@@ -31,7 +31,7 @@ class BatchedWordleEnv:
         self.dones = [False] * self.batch_size
         return self.current_obs
 
-    # for each action in the list, applies that on the corresponding environment, returning the corresponding observations, rewards, and dones each as lists
+    # For each action in the list, applies that on the corresponding environment, returning the corresponding observations, rewards, and dones each as lists.
     def step(self, actions):
         """
         Args:
@@ -58,6 +58,6 @@ class BatchedWordleEnv:
         self.dones = new_dones
         return next_obs, rewards, new_dones
 
-    # determines if all the envs are done (are all games over?)
+    # Determines if all the envs are done (are all games over?).
     def all_done(self):
         return all(self.dones)

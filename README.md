@@ -49,7 +49,7 @@ Our implementation supports training with either a feedforward network (FFN) or 
     │   └── wordle_game.py # Contains the implementation of Wordle, as class WordleGame
     ├── eval
     │   ├── __init__.py
-    │   └── eval.py # Provides code to evaluate a model's average guesses and win rate
+    │   └── evaluate_policy.py # Provides code to evaluate a model's average guesses and win rate
     ├── models
     │   ├── __init__.py
     │   ├── cnn_shared_encoder.py # A CNN implementation of the Shared Encoder

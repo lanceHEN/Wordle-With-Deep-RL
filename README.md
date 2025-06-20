@@ -98,16 +98,65 @@ conda activate wordle-env
 pip install -r requirements.txt
 ```
 
-## Demo the Agent!
+### Quick Start
+
+First, we need to initialize the answer list and guess list:
+```python
+answer_list = load_word_list('data/5_letter_answers_shuffled.txt')
+guess_list = answer_list # For much faster training, just set to answer list
+# guess_list = load_word_list('data/5_letter_words.txt')[:] # Or uncomment to use all 14,855 guess words.
+```
+
+Next, we need to initialize an environment to work with:
+```python
+env = WordleEnv(guess_list=guess_list, answer_list=answer_list)
+# Reset the environment, optionally specifying the answer word
+answer = None # If set to None, a random word is chosen by the environment. Otherwise, the environment will use the given word.
+obs = env.reset(word=answer) # We need to record the observation for the model to know what to do.
+```
+
+Next, we need to set the device:
+```python
+device = torch.device("cpu") # Change as needed.
+```
+
+Next, we need to initialize the word encoding matrix:
+```python
+word_encodings = torch.stack([word_to_encoding(w) for w in guess_list]).to(device)  # shape: [vocab_size, 130]
+```
+
+Next, we neet to initialize the model. You could initialize each component individually and pass them into the ```WordleActorCritic``` constructor, but for simplicity here we can make the object without specifying them:
+```python
+actor_critic = WordleActorCritic().to(device) # Create the underlying model.
+    
+model = ModelWrapper(guess_list, word_encodings, model=actor_critic, device=device) # Make a wrapper for the model to take in an observation and output a guess (rather than a query vector and value prediction).
+```
+
+Optionally, we can load a checkpoint for the model:
+```python
+model_path = "checkpoints/best_model.pth" # Change as needed.
+checkpoint = torch.load(model_path)
+
+actor_critic.load_state_dict(checkpoint['model']) # Load the saved weights.
+```
+
+Then, we can get a guess from the model, whenever given an observation, and step through the environment:
+```python
+guess = model.get_guess(obs) # Get the model guess.
+obs, reward, done = env.step(guess) # Step through the environment with the guess, getting the new observation, reward, and whether the game ended.
+```
+
+## Helpful Pre-made Code
+
+### Demo the Agent!
 To watch the agent play, navigate to `src/demo_script.py`, adjust the word list, answer list, device, and model checkpoints as needed, and click run!
 
-## Train the Agent!
-To begin training, navigate to `src/train_script.py` and configure your device, answer and word list, and optimizer as needed (we already have default options set up). For convenience, we simply created a WordleActorCritic wrapper with default parameters, but you may explore different architecture choices by creating individual components like an ObservationEncoder, FFNSharedEncoder, CNNSharedEncoder, PolicyHead, or ValueHead and passing them into the WordleActorCritic constructor.
-
+### Train the Agent!
+To begin training, navigate to `src/train_script.py` and configure your device, answer and word list, and optimizer as needed (we already have default options set up). For convenience, we simply created a WordleActorCritic wrapper with default parameters, but you may explore different architecture choices by creating individual components like an ```ObservationEncoder```, ```FFNSharedEncoder```, ```CNNSharedEncoder```, ```PolicyHead```, or ```ValueHead``` and passing them into the ```WordleActorCritic``` constructor.
 
 You can then list directories for model checkpoints and tensorboard logging, and uncomment the following lines as needed to load checkpoints later on. The final line will run the training loop, with plenty of options to play with like number of epochs, batch size, FIFO threshold, etc.
 
-## Evaluate the Agent!
+### Evaluate the Agent!
 You can then evaluate the trained agent across all possible answers by running `evaluate_policy_on_all_answers` from ` src/eval/eval.py`, printing and returning average number of guesses and win rate.
 
 ## Future Work

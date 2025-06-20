@@ -4,7 +4,7 @@ import random
 import itertools
 
 # Made with help of generative AI.
-def generate_trajectory(env, word_list, actor_critic, word_encodings, device="cpu", gamma=1):
+def generate_trajectory(env, guess_list, actor_critic, word_encodings, device="cpu", gamma=1):
     """
     Simulates one episode of Wordle using the current policy.
 
@@ -38,7 +38,7 @@ def generate_trajectory(env, word_list, actor_critic, word_encodings, device="cp
             log_prob = dist.log_prob(action_idx) # get log probability - taking the log provides numerical stability
 
             # Get actual word from index
-            action_word = word_list[action_idx.item()]
+            action_word = guess_list[action_idx.item()]
 
             # Step the environment
             next_obs, reward, done = env.step(action_word)
@@ -103,7 +103,7 @@ def compute_advantages(rewards, values, gamma=1, device="cpu"):
 # Made with help of generative AI.
 def generate_batched_trajectories(
     batched_env,
-    word_list,
+    guess_list,
     answer_list,
     word_encodings,
     actor_critic,
@@ -155,7 +155,7 @@ def generate_batched_trajectories(
             actions = dist.sample()
             #actions = torch.argmax(logits, dim=-1)
             log_probs = dist.log_prob(actions)
-            words = [word_list[a.item()] for a in actions]
+            words = [guess_list[a.item()] for a in actions]
 
             next_obs_list, rewards, dones = batched_env.step(words)
 

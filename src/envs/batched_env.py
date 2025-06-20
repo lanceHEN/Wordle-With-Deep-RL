@@ -5,14 +5,12 @@ from envs.wordle_env import WordleEnv
 # Made in part with generative AI.
 class BatchedWordleEnv:
     
-    # Given an environment class (e.g. WordleEnv), word list, answer list, batch size, win reward, and lose reward,
-    # produces a BatchedWordleEnv, a batched set of environments each with the given word list, answer list, batch size, env class, win reward,
+    # Given an environment class (e.g. WordleEnv), guess list, answer list, batch size, win reward, and lose reward,
+    # produces a BatchedWordleEnv, a batched set of environments each with the given guess list, answer list, batch size, env class, win reward,
     # and lose reward, with the given number of batches.
-    def __init__(self, word_list, answer_list, batch_size, env_class=WordleEnv, win_reward=20, lose_reward=-10):
-        self.envs = [env_class(word_list, answer_list, win_reward=win_reward, lose_reward=lose_reward) for _ in range(batch_size)]
+    def __init__(self, guess_list, answer_list, batch_size, env_class=WordleEnv, win_reward=20, lose_reward=-10):
+        self.envs = [env_class(guess_list, answer_list, win_reward=win_reward, lose_reward=lose_reward) for _ in range(batch_size)]
         self.batch_size = batch_size
-        self.word_list = word_list
-        self.answer_list = answer_list
 
         # store current states
         self.current_obs = [env.reset() for env in self.envs]

@@ -92,11 +92,11 @@ class WordleView:
     def initialize_game(self):
         '''Initialize a Wordle game for the view with a random word'''
         base_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
-        word_list_path = os.path.join(base_dir, 'data', '5_letter_words.txt')
+        guess_list_path = os.path.join(base_dir, 'data', '5_letter_words.txt')
         answer_list_path = os.path.join(base_dir, 'data', '5_letter_answers.txt')
-        word_list = load_word_list(word_list_path)
+        guess_list = load_word_list(guess_list_path)
         answer_list = load_word_list(answer_list_path)
-        return WordleGame(word_list=word_list, answer_list=answer_list)
+        return WordleGame(guess_list=guess_list, answer_list=answer_list)
 
     def handle_input(self, event):
         '''Handle keyboard input for the stored game, allowing guesses to be made.
@@ -124,7 +124,6 @@ class WordleView:
 
 # Allows manual play of Wordle, updating the view with new user inputs and stopping when the game is over.
 def main():
-    # Load word lists and initialize the game
     running = True
     message_printed = False  # To ensure message is printed once
     clock = pygame.time.Clock()

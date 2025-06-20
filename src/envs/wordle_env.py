@@ -10,25 +10,25 @@ class WordleEnv:
     1. 'feedback', which maps to a list of (guess, results) tuples, where guess is the guessed word and results is a
         list of lists of "green", "yellow", or "gray" feedback results
     2. 'turn_number', mapping to the current turn in the game
-    3. 'valid_indices', which maps to a list of indices of words in the given word_list that do not contradict existing feedback
+    3. 'valid_indices', which maps to a list of indices of words in the given guess_list that do not contradict existing feedback
     The agent earns a specified win reward if they win, a lose reward if they lose, and an intermediate reward of -1 otherwise
     Essentially, the goal is for the learning agent to maximize return by solving Wordle in as few guesses as possible.
     '''
     
-    def __init__(self, word_list, answer_list, win_reward=20, lose_reward=-10):
+    def __init__(self, guess_list, answer_list, win_reward=20, lose_reward=-10):
         '''
-        Initializes a Wordle RL environment, with the given word list, answer list, and win reward
+        Initializes a Wordle RL environment, with the given guess list, answer list, and win reward
         Args:
-            word_list: list of valid guesses
+            guess_list: list of valid guesses
             answer_list: list of possible secret words/a smaller pool of words
             win_reward: positive reward delivered for winning
             lose_reward: negative reward delivered for losing
         '''
-        self.word_list = word_list
+        self.guess_list = guess_list
         self.answer_list = answer_list
         self.game = None
         self.candidate_words = [] # list of answer words consistent with feedback
-        self.word_to_idx = {word: i for i, word in enumerate(word_list)} # translates a word to an integer index, useful for one-hot
+        self.word_to_idx = {word: i for i, word in enumerate(guess_list)} # translates a word to an integer index, useful for one-hot
         self.win_reward = win_reward
         self.lose_reward = lose_reward
 
@@ -40,8 +40,8 @@ class WordleEnv:
         Returns:
             The initial observation
         '''
-        self.game = WordleGame(self.word_list, self.answer_list, word=word)
-        self.candidate_words = list(self.word_list) # at t = 0 every word is a viable candidate
+        self.game = WordleGame(self.guess_list, self.answer_list, word=word)
+        self.candidate_words = list(self.guess_list) # at t = 0 every word is a viable candidate
         return self._get_obs()
     
     def step(self, guess: str):
@@ -55,7 +55,7 @@ class WordleEnv:
             1. 'feedback', which maps to a list of (guess, results) tuples, where guess is the guessed word and results is a
                 list of lists of "green", "yellow", or "gray" feedback results
             2. 'turn_number', mapping to the current turn in the game
-            3. 'valid_indices', which maps to a list of indices of words in the given word_list that do not contradict existing feedback 
+            3. 'valid_indices', which maps to a list of indices of words in the given guess_list that do not contradict existing feedback 
         '''
         # Plays given guess
         self.game.play_guess(guess)
@@ -91,7 +91,7 @@ class WordleEnv:
             dict:
             - feedback: list of tuples
             - turn_number: current turn number
-            - candidate_indices: indices of candidate words in the original word_list
+            - candidate_indices: indices of candidate words in the original guess_list
         '''
         # If the environment hasn't been set yet, it provides an empty placeholder to do so
         if self.game is None: 
@@ -100,7 +100,7 @@ class WordleEnv:
                 'turn_number': 0,
                 'candidate_indices': [] }
         
-        # Gets the indices of candidate_words in the original word_list
+        # Gets the indices of candidate_words in the original guess_list
         candidate_indices = [self.word_to_idx[word] for word in self.candidate_words]
         
         return {

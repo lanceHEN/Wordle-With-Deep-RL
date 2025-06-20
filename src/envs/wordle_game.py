@@ -4,14 +4,14 @@ import numpy as np
 # To represent a playable game of Wordle
 class WordleGame:
 
-    def __init__(self, word_list, answer_list, word=None):
+    def __init__(self, guess_list, answer_list, word=None):
         '''Initialize the WordleGame with a list of words and answers.
         Args:
-            word_list (list): List of words.
+            guess_list (list): List of guess words.
             answer_list (list): List of possible answers.
             word (str, optional): The word to guess (for testing).
         '''
-        self.word_list = word_list
+        self.guess_list = guess_list
         self.answer_list = answer_list
         self.word = word if word else self.answer_list[np.random.randint(len(self.answer_list))]
         self.feedback = [] # List of tuples (guess, colors)
@@ -39,8 +39,8 @@ class WordleGame:
         Raises:
             ValueError: If the guess is not a valid word or not 5 letters long.
         '''
-        if len(guess) != 5 or guess not in self.word_list:
-            raise ValueError('Invalid guess: must be a 5-letter word from the word list.')
+        if len(guess) != 5 or guess not in self.guess_list:
+            raise ValueError('Invalid guess: must be a 5-letter word from the guess list.')
         self.current_guess = guess
 
         if not self.is_game_over():

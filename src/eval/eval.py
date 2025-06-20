@@ -1,13 +1,13 @@
 import torch
 from envs.wordle_env import WordleEnv
 
-# Given an environment class, word list, answer list, word embeddings, model, and batch_size,
+# Given an environment class, guess list, answer list, word embeddings, model, and batch_size,
 # evaluates model performance on every answer word, including win rate (% of time the answer is found in time)
 # and average guesses used.
 # It does this in batches with given batch_size to speed up computation.
 # It returns the win rate and avg_guesses, in addition to printing them.
 # Made with help of generative AI.
-def evaluate_policy_on_all_answers(env_class, word_list, answer_list, word_encodings, actor_critic, batch_size=512):
+def evaluate_policy_on_all_answers(env_class, guess_list, answer_list, word_encodings, actor_critic, batch_size=512):
     total_games = len(answer_list)
     total_wins = 0
     total_guesses = []
@@ -17,7 +17,7 @@ def evaluate_policy_on_all_answers(env_class, word_list, answer_list, word_encod
         for batch_start in range(0, total_games, batch_size):
             batch_answers = answer_list[batch_start:batch_start + batch_size]
 
-            env = env_class(word_list, answer_list, batch_size=len(batch_answers)) # batch size should always beb exact
+            env = env_class(guess_list, answer_list, batch_size=len(batch_answers)) # batch size should always beb exact
             obs_list = env.reset(starting_words=batch_answers)
 
             guesses = [0 for _ in range(len(batch_answers))]
@@ -34,7 +34,7 @@ def evaluate_policy_on_all_answers(env_class, word_list, answer_list, word_encod
                 actions = torch.argmax(logits, dim=-1).tolist()
 
                 # Get the guessed words
-                guess_words = [word_list[a] for a in actions]
+                guess_words = [guess_list[a] for a in actions]
 
                 # Step the environment
                 obs_list, reward_list, done_list = env.step(guess_words)

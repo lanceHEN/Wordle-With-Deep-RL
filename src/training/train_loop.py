@@ -23,7 +23,7 @@ def training_loop(
     optimizer, # optimizer
     word_list, # list of all words that can be used as guesses
     answer_list, # list of all words that can be used as answers
-    word_matrix, # one hot embeddings for every word in word_list, as a [len(word_list), 130] torch tensor
+    word_encodings, # one hot embeddings for every word in word_list, as a [len(word_list), 130] torch tensor
     save_dir, # directory to save the model parameters
     log_dir, # directory to save tensorboard logs
     num_epochs=300, # number of overall epochs
@@ -49,7 +49,7 @@ def training_loop(
             batched_env,
             word_list,
             answer_list,
-            word_matrix,
+            word_encodings,
             actor_critic,
             gamma=gamma,
             device=device,
@@ -103,7 +103,7 @@ def training_loop(
                     adv_batch,
                     ret_batch,
                     logp_batch,
-                    word_matrix,
+                    word_encodings,
                     clip_epsilon=clip_epsilon,
                     value_loss_coef=value_loss_coef,
                     device=device,
@@ -117,7 +117,7 @@ def training_loop(
             env_class=BatchedWordleEnv,
             word_list=word_list,
             answer_list=answer_list,
-            word_matrix=word_matrix,
+            word_encodings=word_encodings,
             actor_critic=actor_critic)
             writer.add_scalar("Eval/win_rate", win_rate, epoch)
             writer.add_scalar("Eval/avg_guesses", avg_guesses, epoch)

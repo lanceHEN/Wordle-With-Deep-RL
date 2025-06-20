@@ -4,7 +4,7 @@ import random
 import itertools
 
 # Made with help of generative AI.
-def generate_trajectory(env, word_list, actor_critic, word_matrix, device="cpu", gamma=1):
+def generate_trajectory(env, word_list, actor_critic, word_encodings, device="cpu", gamma=1):
     """
     Simulates one episode of Wordle using the current policy.
 
@@ -31,7 +31,7 @@ def generate_trajectory(env, word_list, actor_critic, word_matrix, device="cpu",
             
         
             valid_indices = obs["valid_indices"]
-            scores, value = actor_critic([obs], word_matrix)
+            scores, value = actor_critic([obs], word_encodings)
             dist = Categorical(logits=scores)
             # Choose an action
             action_idx = dist.sample()
@@ -105,7 +105,7 @@ def generate_batched_trajectories(
     batched_env,
     word_list,
     answer_list,
-    word_matrix,
+    word_encodings,
     actor_critic,
     gamma=1.0,
     device="cpu",
@@ -149,7 +149,7 @@ def generate_batched_trajectories(
     with torch.no_grad():
         while not batched_env.all_done():
             # Vectorized observation encoding
-            logits, values = actor_critic(obs_list, word_matrix)
+            logits, values = actor_critic(obs_list, word_encodings)
 
             dist = Categorical(logits=logits)
             actions = dist.sample()

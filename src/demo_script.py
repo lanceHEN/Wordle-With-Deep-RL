@@ -34,12 +34,12 @@ def demo_wordle_game(word, device, model_path):
     # Load the trained model from pth file.
     checkpoint = torch.load(model_path)
 
-    word_matrix = torch.stack([word_to_encoding(w) for w in word_list]).to(device)  # shape: [vocab_size, 130]
+    word_encodings = torch.stack([word_to_encoding(w) for w in word_list]).to(device)  # shape: [vocab_size, 130]
 
     actor_critic = WordleActorCritic().to(device)
     actor_critic.load_state_dict(checkpoint['model'])
     
-    model = ModelWrapper(word_list, word_matrix, model=actor_critic, device=device)
+    model = ModelWrapper(word_list, word_encodings, model=actor_critic, device=device)
     
     # Play the game to completion.
     while not done:

@@ -5,14 +5,14 @@ from models.wordle_actor_critic import WordleActorCritic
 # word list and word encodings and producing a guess word whenever given a particular
 # observation. This is useful for actually playing the game in an interpretable manner (e.g. interacting with WordleView).
 class ModelWrapper:
-    def __init__(self, word_list, word_matrix, model=None, device='cpu'):
+    def __init__(self, word_list, word_encodings, model=None, device='cpu'):
         if model is None:
             self.model = WordleActorCritic().to(device)
         else:
             self.model = model.to(device)
         self.model.eval()
         self.word_list = word_list
-        self.word_matrix = word_matrix.to(device)
+        self.word_encodings = word_encodings.to(device)
         self.device = device
 
     # Given an observation, produces the model's 5-letter guess for it.
@@ -22,7 +22,7 @@ class ModelWrapper:
 
         # get logits
         with torch.no_grad():
-            logits, _ = self.model(obs_batch, self.word_matrix)
+            logits, _ = self.model(obs_batch, self.word_encodings)
 
         # get the guess - largest logit <-> largest probability
         best_idx = torch.argmax(logits[0]).item()

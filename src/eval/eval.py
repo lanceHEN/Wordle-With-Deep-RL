@@ -7,7 +7,7 @@ from envs.wordle_env import WordleEnv
 # It does this in batches with given batch_size to speed up computation.
 # It returns the win rate and avg_guesses, in addition to printing them.
 # Made with help of generative AI.
-def evaluate_policy_on_all_answers(env_class, word_list, answer_list, word_matrix, actor_critic, batch_size=512):
+def evaluate_policy_on_all_answers(env_class, word_list, answer_list, word_encodings, actor_critic, batch_size=512):
     total_games = len(answer_list)
     total_wins = 0
     total_guesses = []
@@ -30,7 +30,7 @@ def evaluate_policy_on_all_answers(env_class, word_list, answer_list, word_matri
                     break
 
                 # Compute logits
-                logits, _ = actor_critic(obs_list, word_matrix)
+                logits, _ = actor_critic(obs_list, word_encodings)
                 actions = torch.argmax(logits, dim=-1).tolist()
 
                 # Get the guessed words

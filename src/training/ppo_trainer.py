@@ -11,7 +11,7 @@ def ppo_update(
     advantages, # difference between actual and expected returns
     returns, # actual returns
     old_log_probs, # log probabilities for the actions at the time of the episodes
-    word_matrix, # word embeddings
+    word_encodings, # word encodings
     clip_epsilon=0.2, # clip epsilon for PPO - how tightly to clamp the new vs old prob ratios
     value_loss_coef=0.5, # coefficient for value loss
     device="cpu", # device
@@ -33,7 +33,7 @@ def ppo_update(
     old_log_probs = torch.stack(old_log_probs).to(device)
 
     # Forward pass
-    logits, values = actor_critic(observations, word_matrix)
+    logits, values = actor_critic(observations, word_encodings)
     #print("[ppo_update] after policy_head: query-related logits shape:", logits.shape)
 
     log_probs = F.log_softmax(logits, dim=-1)

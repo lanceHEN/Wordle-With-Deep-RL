@@ -129,7 +129,10 @@ Next, we neet to initialize the model. You could initialize each component indiv
 ```python
 actor_critic = WordleActorCritic().to(device) # Create the underlying model.
     
-model = ModelWrapper(guess_list, word_encodings, model=actor_critic, device=device) # Make a wrapper for the model to take in an observation and output a guess (rather than a query vector and value prediction).
+# Make a wrapper for the model to take in an observation and output a guess (rather than a query vector and value prediction).
+# Note we could actually construct this without having to specify an actor_critic (it would make one automatically with default params, in that case).
+# Here, we simply construct an actor_critic for clarity on making an underlying model - which is necessary for training.
+model = ModelWrapper(guess_list, word_encodings, model=actor_critic, device=device)
 ```
 
 Optionally, we can load a checkpoint for the model:

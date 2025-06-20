@@ -1,7 +1,6 @@
 import torch
 from torch.distributions import Categorical
 import random
-import itertools
 
 # Made with help of generative AI.
 def generate_trajectory(env, guess_list, actor_critic, word_encodings, device="cpu", gamma=1):

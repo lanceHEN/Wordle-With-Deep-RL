@@ -22,7 +22,7 @@ class ObservationEncoder(nn.Module):
 
     # Given batched observations (as a list), produces numerical representations friendly for inputs to a neural network.
     # In particular, produces:
-    # 1. Grid tensor: a [B x 6 x 5 x letter_embed_dim + 3] tensor, storing letter (embeddings from the given LetterEncoder)
+    # 1. Grid tensor: a [B x 6 x 5 x letter_embed_dim + 3] tensor, storing letter (learnable embeddings from the given LetterEncoder)
     # and feedback (one hot) data for every position in the game (filled or unfilled), for each in the batch
     # 2. Meta vector: a [B x 2] tensor storing the current turn and number of candidate words remaining (divided by total vocab size of word/guess list) for the particular
     # game in the batch.

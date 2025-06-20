@@ -78,6 +78,7 @@ def compute_advantages(rewards, values, gamma=1, device="cpu"):
     """
     Computes simple advantages and returns.
     Advantages are simply the difference of returns and predicted values.
+    Returns are the discounted sum of current and future rewards (if gamma=1, there's no discount)
     
     Args:
         rewards: list of individual rewards [r_0, r_1, ..., r_T-1]
@@ -113,7 +114,7 @@ def generate_batched_trajectories(
     fifo_percentage=0.0
 ):
     """
-    Simulates each episode of Wordle in the given batched_env simultaneously using the current policy. Includes a FIFO queue from which to take fifo_percentage*batch_size
+    Simulates each episode of Wordle in the given batched_env simultaneously using the current policy. Includes a FIFO queue from which to take no more than fifo_percentage*batch_size
     challenging words, to boost performance on those words through concentrated training.
 
     At each step:

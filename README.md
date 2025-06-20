@@ -23,7 +23,7 @@ The actual PPO training scheme involves first collecting a number of episodes or
 - **Returns**: The sum of current and future rewards from that step (undiscounted in our case, since $\gamma = 1$).
 - **Advantages**: The difference between actual return and predicted state value, used to measure how much better or worse the action performed than expected.
   
-Training proceeds by updating the policy and value networks using mini-batches from these trajectories across several PPO epochs. The policy is updated by maximizing a clipped objective that prevents overly large updates, stabilizing learning. Meanwhile, the value network is trained to regress toward the actual returns.
+Training proceeds by updating the policy and value networks using mini-batches from these trajectories across several PPO epochs. The policy network is updated by maximizing a clipped objective that prevents overly large updates, resulting in more stable learning. Meanwhile, the value network is trained to capture the actual returns as accurately as possible.
 
 To focus learning on challenging words, we maintain a FIFO queue storing words that took more than a fixed number of guesses to answer. Rather than generating solely random episodes, a fixed percentage of them are reserved to use words popped from the queue.
 

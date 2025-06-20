@@ -1,4 +1,3 @@
-import torch
 import torch.nn as nn
 from models.observation_encoder import ObservationEncoder
 from models.ffn_shared_encoder import FFNSharedEncoder

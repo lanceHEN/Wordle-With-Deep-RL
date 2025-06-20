@@ -11,17 +11,17 @@ from envs.wordle_env import WordleEnv
 from utils.load_list import load_word_list
 from utils.word_to_encoding import word_to_encoding
 
-# Load answer list and guess list.
+# Initialize the answer list and guess list.
 answer_list = load_word_list('data/5_letter_answers_shuffled.txt')
-guess_list = answer_list
+guess_list = answer_list # We set the guess list to the answer list for faster training.
 # guess_list = load_word_list('data/5_letter_words.txt')[:] # uncomment to use all 14,855 guess words
 
 def demo_wordle_game(word, device, model_path):
     '''Demo a visual game of Wordle, where the model plays against a fixed word.'''
     
-    # Initialize the env with a fixed word.
+    # Initialize the environment with a fixed word.
     env = WordleEnv(guess_list=guess_list, answer_list=answer_list)
-    obs = env.reset(word=word)
+    obs = env.reset(word=word) # We need to record the observation for the model to know what to do.
     done = False
     
     # Initialize the view and relevant variables.
@@ -31,14 +31,16 @@ def demo_wordle_game(word, device, model_path):
     
     view.draw_game()
 
+    # Initialize the word encoding matrix.
+    word_encodings = torch.stack([word_to_encoding(w) for w in guess_list]).to(device)  # shape: [vocab_size, 130]
+    
     # Load the trained model from pth file.
     checkpoint = torch.load(model_path)
-
-    word_encodings = torch.stack([word_to_encoding(w) for w in guess_list]).to(device)  # shape: [vocab_size, 130]
 
     actor_critic = WordleActorCritic().to(device)
     actor_critic.load_state_dict(checkpoint['model'])
     
+    # Note we could actually construct this without having to specify a WordleActorCritic (it would make one automatically with default params, in that case)
     model = ModelWrapper(guess_list, word_encodings, model=actor_critic, device=device)
     
     # Play the game to completion.
@@ -71,5 +73,11 @@ if __name__ == '__main__':
     # Choose a random word.
     answer_list = load_word_list('data/5_letter_answers_shuffled.txt')
     random_word = answer_list[np.random.randint(len(answer_list))]
+    
+    # Set the device.
+    device = torch.device("cpu") # Change as needed.
+    
+    # Set the model path.
+    model_path = "checkpoints/best_model.pth" # Change as needed.
 
-    demo_wordle_game(random_word, torch.device("cpu"), "checkpoints/best_model.pth") # Use random word or chosen word.
+    demo_wordle_game(random_word, device, model_path) # Use random word or chosen word.

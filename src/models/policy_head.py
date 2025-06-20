@@ -3,7 +3,7 @@ import torch.nn as nn
 
 
 # Implementation of the policy head that works with batching. Takes in batched latent vectors from the Shared Encoder and 
-# produces a query vector for each batch item, which can be used to obtain a probability distribution.
+# produces a query vector for each batch item, which can be used to obtain probability distributions.
 # This was chosen over a simpler output head immediately producing logits over every word because embeddings allow for a finer-grained comparison between words,
 # particularly words having the same prefixes or suffixes being treated similarly.
 class PolicyHead(nn.Module):

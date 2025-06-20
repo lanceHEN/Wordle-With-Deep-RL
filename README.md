@@ -8,7 +8,7 @@ We model Wordle as a Markov Decision Process (MDP) with:
 - **States**: Feedback from previous guesses, current turn number, and valid guess indices
 - **Actions**: Valid word guesses that do not contradict known feedback
 - **Rewards**: Large positive reward for winning (we use +20), negative for losing (-10), and a small penalty for incorrect guesses (-1) to encourage efficiency
-- **Discount factor**: $\gamma = 1$, since there's no more than 6 steps
+- **Discount factor**: $\gamma = 1$, since there are no more than 6 steps
 
 Training is conducted using PPO, which involves a neural network to pick actions from a probability distribution over them, consisting of:
 - **Observation Encoder**: Given an observed state dictionary, produces a numerical representation for neural networks consisting of:

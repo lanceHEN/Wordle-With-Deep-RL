@@ -163,6 +163,6 @@ You can then list directories for model checkpoints and tensorboard logging, and
 You can then evaluate the trained agent across all possible answers by running `evaluate_policy_on_all_answers` from ` src/eval/eval.py`, printing and returning average number of guesses and win rate.
 
 ## Future Work
-- Not limiting the model to strictly valid words
-- Exploring RNNs like Transformers for sequential modeling in the Shared Encoder
-- Exploring Wordle variants like [Absurdle](https://qntm.org/files/absurdle/absurdle.html) or [Sixdle](https://word.rodeo/sixdle/)
+- Not limiting the model to strictly valid words.
+- Exploring RNNs like Transformers for sequential modeling in the Shared Encoder.
+- Exploring Wordle variants like [Absurdle](https://qntm.org/files/absurdle/absurdle.html) or [Sixdle](https://word.rodeo/sixdle/).

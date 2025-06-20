@@ -16,7 +16,7 @@ answer_list = load_word_list('data/5_letter_answers_shuffled.txt')[:]
 word_list = answer_list
 # word_list = load_word_list('data/5_letter_words.txt')[:] # uncomment to use all 14,855 guess words
 
-# Load word matrix
+# Load word encoding matrix
 word_matrix = torch.stack([word_to_encoding(w) for w in word_list]).to(device)  # shape: [vocab_size, 130]
 
 # Load model
@@ -33,10 +33,11 @@ training_checkpoint_dir = "ENTER CHECKPOINT DIR FOR SAVING DURING TRAINING"
 training_logging_dir = "ENTER LOGGING DIR FOR TRAINING"
 
 # Uncomment the below lines if you want to restore a checkpoint
-'''
-checkpoint_dir = "ENTER CHECKPOINT DIR"
 
-checkpoint = torch.load(checkpoint_dir)
+'''
+checkpoint_path = "ENTER CHECKPOINT PATH"
+
+checkpoint = torch.load(checkpoint_path)
 
 actor_critic.load_state_dict(checkpoint["model"])
 

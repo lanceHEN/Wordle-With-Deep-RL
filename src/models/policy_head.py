@@ -9,9 +9,9 @@ import torch.nn as nn
 class PolicyHead(nn.Module):
     
     # Initializes a PolicyHead with the given input latent dimension (should be same as SharedEncoder output).
-    def __init__(self, hidden_dim=256):
+    def __init__(self, input_dim=256):
         super().__init__()
-        self.linear = nn.Linear(hidden_dim, 5*26) # linear
+        self.linear = nn.Linear(input_dim, 5*26) # linear
 
     # Given batched latent vectors from the shared encoder, produces a query vector for each batch item, which can then be
     # multiplied with all word embeddings for all guess words (via dot prod.) to produce logits (masked for valid word indices),

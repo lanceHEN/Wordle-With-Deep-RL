@@ -6,12 +6,12 @@ import torch.nn as nn
 # This is a simple MLP with one linear layer - scalar output.
 class ValueHead(nn.Module):
     
-    # Initializes a ValueHead with the given input hidden dim.
-    def __init__(self, hidden_dim=256):
+    # Initializes a ValueHead with the given input dim.
+    def __init__(self, input_dim=256):
         super().__init__()
-        self.value = nn.Linear(hidden_dim, 1)
+        self.value = nn.Linear(input_dim, 1)
      
     # Given batched vectors from SharedEncoder, produces an estimate of the values for their corresponding states.
     def forward(self, h):
-        # h: [B, hidden_dim]
+        # h: [B, input_dim]
         return self.value(h).squeeze(-1)

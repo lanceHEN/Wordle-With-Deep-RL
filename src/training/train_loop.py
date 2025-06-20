@@ -3,7 +3,7 @@ from tqdm import trange
 from training.trajectory_collector import generate_batched_trajectories
 from training.ppo_trainer import ppo_update
 import random
-from eval.eval import evaluate_policy_on_all_answers
+from eval.evaluate_policy import evaluate_policy_on_all_answers
 from envs.batched_env import BatchedWordleEnv
 import os
 from torch.utils.tensorboard import SummaryWriter
@@ -21,9 +21,9 @@ def training_loop(
     batched_env, # the batched wordle environments, as a BatchedWordleEnv
     actor_critic, # the wrapped model architecture, as a WordleActorCritic
     optimizer, # optimizer
-    word_list, # list of all words that can be used as guesses
+    guess_list, # list of all words that can be used as guesses
     answer_list, # list of all words that can be used as answers
-    word_encodings, # one hot embeddings for every word in word_list, as a [len(word_list), 130] torch tensor
+    word_encodings, # one hot embeddings for every word in guess_list, as a [len(guess_list), 130] torch tensor
     save_dir, # directory to save the model parameters
     log_dir, # directory to save tensorboard logs
     num_epochs=300, # number of overall epochs
@@ -47,7 +47,7 @@ def training_loop(
         # Collect one full batch of trajectories from the batched environment
         traj = generate_batched_trajectories(
             batched_env,
-            word_list,
+            guess_list,
             answer_list,
             word_encodings,
             actor_critic,
@@ -115,7 +115,7 @@ def training_loop(
             print("Evaluating policy on all answers...")
             win_rate, avg_guesses = evaluate_policy_on_all_answers(
             env_class=BatchedWordleEnv,
-            word_list=word_list,
+            guess_list=guess_list,
             answer_list=answer_list,
             word_encodings=word_encodings,
             actor_critic=actor_critic)

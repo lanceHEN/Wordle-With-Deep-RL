@@ -1,4 +1,3 @@
-import torch
 import torch.nn as nn
 
 # A critic/value network head that takes in batched latent vectors from SharedEncoder and produces an estimate of the values for their corresponding states.

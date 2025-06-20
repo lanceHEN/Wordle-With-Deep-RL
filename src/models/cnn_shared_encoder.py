@@ -39,6 +39,8 @@ class CNNSharedEncoder(nn.Module):
         self.flatten = nn.Flatten()
         
         # fuses with meta tensor via Multilayer Perceptron (to combine conv features with meta)
+        # Note: this is identical to the FFN used in the FFN shared encoder, but we choose not to reuse it
+        # in case we want this FFN backbone to be different in future experimental iterations.
         self.fuse = nn.Sequential(
             nn.Linear(in_ch * 6 * 5 + 2, hidden_dim),
             nn.LayerNorm(hidden_dim),

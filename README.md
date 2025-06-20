@@ -98,7 +98,7 @@ conda activate wordle-env
 pip install -r requirements.txt
 ```
 
-### Quick Start
+## Quick Start
 
 First, we need to initialize the answer list and guess list:
 ```python

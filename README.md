@@ -64,9 +64,9 @@ Our implementation supports training with either a feedforward network (FFN) or 
     ├── train_script.py # A script to train the model
     ├── training # A directory for PPO training implementation
     │   ├── __init__.py
-    │   ├── ppo_trainer.py
-    │   ├── train_loop.py
-    │   └── trajectory_collector.py
+    │   ├── ppo_trainer.py # Code for the PPO update algorithm
+    │   ├── train_loop.py # Code for the overall training loop
+    │   └── trajectory_collector.py Code for collecting trajectories for PPO training
     ├── utils # A directory for random utility functions
     │   ├── __init__.py
     │   ├── load_list.py # Provides a function to load a word file into a list of strings

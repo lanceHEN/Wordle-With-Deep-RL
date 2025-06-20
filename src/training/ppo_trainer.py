@@ -1,6 +1,5 @@
 import torch
 import torch.nn.functional as F
-from torch.distributions import Categorical
 
 # Made in part with generative AI.
 def ppo_update(

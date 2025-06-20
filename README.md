@@ -5,18 +5,18 @@ This repository contains the codebase for a deep reinforcement learning (RL) age
 ## Methodology Overview
 
 We model Wordle as a Markov Decision Process (MDP) with:
-- **States**: Feedback from previous guesses, current turn number, and valid guess indices
-- **Actions**: Valid word guesses that do not contradict known feedback
-- **Rewards**: Large positive reward for winning (we use +20), negative for losing (-10), and a small penalty for incorrect guesses (-1) to encourage efficiency
-- **Discount factor**: $\gamma = 1$, since there are no more than 6 steps
+- **States**: Feedback from previous guesses, current turn number, and valid guess indices.
+- **Actions**: Valid word guesses that do not contradict known feedback.
+- **Rewards**: Large positive reward for winning (we use +20), negative for losing (-10), and a small penalty for incorrect guesses (-1) to encourage efficiency.
+- **Discount factor**: $\gamma = 1$, since there are no more than 6 steps.
 
 Training is conducted using PPO, which involves a neural network to pick actions from a probability distribution over them, consisting of:
 - **Observation Encoder**: Given an observed state dictionary, produces a numerical representation for neural networks consisting of:
-  - A grid tensor, which stores learned encodings for letters and one-hot encodings for feedback at each position on the board
-  - A meta vector, which stores additional information including turn number and number of remaining valid guesses (normalized)
-- **Shared Encoder**: Given a grid tensor and meta vector from the Observation Encoder, produces a latent vector representation for use by both the Policy and Value heads
-- **Policy Head**: Given the latent vector representation, produces a query vector which can then be multiplied with a matrix of word encodings to produce logits over each word (mask those for valid indices to $- \infty$), from which a probability distribution may be derived via softmax
-- **Value Head**: Given the latent vector representation, produces a scalar prediction of the value of the original state
+  - A grid tensor, which stores learned encodings for letters and one-hot encodings for feedback at each position on the board.
+  - A meta vector, which stores additional information including turn number and number of remaining valid guesses (normalized).
+- **Shared Encoder**: Given a grid tensor and meta vector from the Observation Encoder, produces a latent vector representation for use by both the Policy and Value heads.
+- **Policy Head**: Given the latent vector representation, produces a query vector which can then be multiplied with a matrix of word encodings to produce logits over each word (mask those for valid indices to $- \infty$), from which a probability distribution may be derived via softmax.
+- **Value Head**: Given the latent vector representation, produces a scalar prediction of the value of the original state.
 
 The actual PPO training scheme involves first collecting a number of episodes or trajectories from the environment, where each trajectory consists of states, actions, rewards, and other relevant values from full games. For each step in these episodes, we compute:
 

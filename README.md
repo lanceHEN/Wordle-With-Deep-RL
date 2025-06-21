@@ -166,4 +166,4 @@ You can then evaluate the trained agent across all possible answers by running `
 ## Future Work
 - Not limiting the model to strictly valid words.
 - Exploring RNNs like Transformers for sequential modeling in the Shared Encoder.
-- Exploring Wordle variants like [Absurdle](https://qntm.org/files/absurdle/absurdle.html) or [Sixdle](https://word.rodeo/sixdle/).
+- Exploring Wordle variants like [Absurdle](https://qntm.org/files/absurdle/absurdle.html) or [Sixdle](https://word.rodeo/sixdle/), leveraging the flexibility of deep RL to large state and action spaces.

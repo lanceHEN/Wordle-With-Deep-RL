@@ -153,7 +153,7 @@ obs, reward, done = env.step(guess) # Step through the environment with the gues
 ## Helpful Pre-made Code
 
 ### Demo the Agent!
-To watch the agent play, navigate to `src/demo_script.py`, adjust the word list, answer list, device, and model checkpoints as needed, and click run!
+To watch the agent play, navigate to `src/demo_script.py`, adjust the word list, answer list, device, and model checkpoint as needed, and click run!
 
 ### Train the Agent!
 To begin training, navigate to `src/train_script.py` and configure your device, answer and word list, and optimizer as needed (we already have default options set up). For convenience, we simply created a WordleActorCritic wrapper with default parameters, but you may explore different architecture choices by creating individual components like an ```ObservationEncoder```, ```FFNSharedEncoder```, ```CNNSharedEncoder```, ```PolicyHead```, or ```ValueHead``` and passing them into the ```WordleActorCritic``` constructor.

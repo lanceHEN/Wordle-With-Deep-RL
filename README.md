@@ -42,16 +42,16 @@ Our implementation supports training with either a feedforward network (FFN) or 
 │   └── 5_letter_words.txt # All 14,855 Wordle guesses
 └── src # Directory containing the implementation of the agent, game, and environment
     ├── demo_script.py # Demonstrates a model on a visual Wordle game
-    ├── envs
+    ├── envs # Directory for the wordle game and environment
     │   ├── __init__.py
     │   ├── batched_env.py # Wraps multiple environments together in a batch for faster training
     │   ├── test_wordle_game.py # Tests for WordleGame
     │   ├── wordle_env.py # Contains an environment wrapper for Wordle, for agent interaction
     │   └── wordle_game.py # Contains the implementation of Wordle, as class WordleGame
-    ├── eval
+    ├── eval # Directory containing code to evaluate the model
     │   ├── __init__.py
     │   └── evaluate_policy.py # Provides code to evaluate a model's average guesses and win rate
-    ├── models
+    ├── models # Directory containing the agent's architectural implementation
     │   ├── __init__.py
     │   ├── cnn_shared_encoder.py # A CNN implementation of the Shared Encoder
     │   ├── ffn_shared_encoder.py # A FFN implementation of the Shared Encoder

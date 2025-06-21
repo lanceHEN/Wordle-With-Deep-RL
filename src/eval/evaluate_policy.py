@@ -16,7 +16,7 @@ def evaluate_policy_on_all_answers(env_class, guess_list, answer_list, word_enco
         for batch_start in range(0, total_games, batch_size):
             batch_answers = answer_list[batch_start:batch_start + batch_size]
 
-            env = env_class(guess_list, answer_list, batch_size=len(batch_answers)) # batch size should always beb exact
+            env = env_class(guess_list, answer_list, batch_size=len(batch_answers)) # Batch size should always be exact
             obs_list = env.reset(starting_words=batch_answers)
 
             guesses = [0 for _ in range(len(batch_answers))]

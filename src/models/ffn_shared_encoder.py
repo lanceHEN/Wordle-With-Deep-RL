@@ -6,13 +6,12 @@ import torch.nn as nn
 # the grid, concatenating it with the meta vector, and passing through two fully connected layers.
 class FFNSharedEncoder(nn.Module):
     
-    # Initializes a FFNSharedEncoder with the given embedding dimension, and hidden dimensions.
-    def __init__(self, embed_dim=19, hidden_dim=512, shared_output_dim=256):
+    # Initializes a FFNSharedEncoder with the given input dimension, hidden dimension, and output dimension.
+    def __init__(self, input_dim=6*5*19+2, hidden_dim=512, shared_output_dim=256):
         super().__init__()
-        self.input_dim = 6 * 5 * embed_dim + 2
         
         self.encoder = nn.Sequential( # Feedforward
-            nn.Linear(self.input_dim, hidden_dim),
+            nn.Linear(input_dim, hidden_dim),
             nn.LayerNorm(hidden_dim),
             nn.ReLU(inplace=False),
             nn.Linear(hidden_dim, shared_output_dim),

@@ -5,8 +5,8 @@ from models.policy_head import PolicyHead
 from models.value_head import ValueHead
 
 # Wrapper that combines the functionality of all individual components into one, such that given an observation batch, it will produce:
-# 1. Logits over each action (word) for each batch state, i.e. the policy outputs
-# 2. Value predictions, i.e. the value outputs, for each state in the batch
+# 1. Logits over each action (word) for each batch state, i.e. the policy outputs - # [B, vocab_size]
+# 2. Value predictions, i.e. the value outputs, for each state in the batch - [B]
 # For convenience, none of the components need to be given on construction, i.e. any component set to none will be instantiated with
 # default parameters.
 class WordleActorCritic(nn.Module):
@@ -26,13 +26,13 @@ class WordleActorCritic(nn.Module):
             self.value_head = ValueHead()
 
     # Given an observation batch, and word encodings, produces two outputs:
-    # 1. Logits over each action (word), i.e. the policy outputs, for each state in the batch
-    # 2. Value predictions, i.e. the value outputs, for each state in the batch
+    # 1. Logits over each action (word), i.e. the policy outputs, for each state in the batch - # [B, vocab_size]
+    # 2. Value predictions, i.e. the value outputs, for each state in the batch - [B]
     def forward(self, obs_batch, word_encodings):
         device = next(self.parameters()).device
         
         valid_indices_batch = [obs["valid_indices"] for obs in obs_batch]
-        h = self.obs_shared(obs_batch)  # [B, hidden_dim]
+        h = self.obs_shared(obs_batch)  # [B, share]
         query = self.policy_head(h)  # [B, V]
         
         # Compute logits via dot product with all word embeddings
@@ -46,7 +46,7 @@ class WordleActorCritic(nn.Module):
 
         # Apply mask
         mask_float = torch.where(mask, float('-inf'), 0.0)
-        masked_logits = logits + mask_float
+        masked_logits = logits + mask_float # [B, vocab_size]
         
         values = self.value_head(h).squeeze(-1)  # [B]
         return masked_logits, values

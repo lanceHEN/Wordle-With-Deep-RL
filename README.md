@@ -7,7 +7,7 @@ This repository contains the codebase for a deep reinforcement learning (RL) age
 We model Wordle as a Markov Decision Process (MDP) with:
 - **States**: Feedback from previous guesses, current turn number, and valid guess indices.
 - **Actions**: Valid word guesses that do not contradict known feedback.
-- **Rewards**: Large positive reward for winning (we use +20), negative for losing (-10), and a small penalty for incorrect guesses (-1) to encourage efficiency.
+- **Rewards**: Large positive reward for winning (we use +20), negative for losing (-10), and a small penalty for incorrect guesses (-1) to encourage efficiency. Notably, the win and loss rewards can each be changed as needed in our code.
 - **Discount factor**: $\gamma = 1$, since there are no more than 6 steps.
 - **Probabilities** of ending up in different states, given an initial state and action (these are uncertain to reflect the stochasticity of the game from the agent's perspective). Notably, probabilities are never needed or computed anywhere in the implementation, requiring only theoretical description. Particularly, we define the probability to be the ratio of the number of answers matching the feedback of the destination state, to the total number of answers matching the feedback of the source state.
 

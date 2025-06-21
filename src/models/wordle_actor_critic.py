@@ -4,7 +4,7 @@ from models.obs_shared_wrapper import ObservationSharedWrapper
 from models.policy_head import PolicyHead
 from models.value_head import ValueHead
 
-# Wrapper that combines the functionality of all individual components into one, such that given an observation batch, it will produce:
+# Wrapper that combines the functionality of all individual components into one, such that given an observation batch (list of observations), it will produce:
 # 1. Logits over each action (word) for each batch state, i.e. the policy outputs - # [B, vocab_size]
 # 2. Value predictions, i.e. the value outputs, for each state in the batch - [B]
 # For convenience, none of the components need to be given on construction, i.e. any component set to none will be instantiated with
@@ -25,15 +25,15 @@ class WordleActorCritic(nn.Module):
         else:
             self.value_head = ValueHead()
 
-    # Given an observation batch, and word encodings, produces two outputs:
+    # Given an observation batch (list of observations), and word encodings (shape [vocab_size, 130), produces two outputs:
     # 1. Logits over each action (word), i.e. the policy outputs, for each state in the batch - # [B, vocab_size]
     # 2. Value predictions, i.e. the value outputs, for each state in the batch - [B]
     def forward(self, obs_batch, word_encodings):
         device = next(self.parameters()).device
         
         valid_indices_batch = [obs["valid_indices"] for obs in obs_batch]
-        h = self.obs_shared(obs_batch)  # [B, share]
-        query = self.policy_head(h)  # [B, V]
+        h = self.obs_shared(obs_batch)  # [B, shared_output_dim]
+        query = self.policy_head(h)  # [B, 130]
         
         # Compute logits via dot product with all word embeddings
         logits = query @ word_encodings.T  # [B, vocab_size]

@@ -3,7 +3,7 @@ import torch.nn as nn
 
 # Variation of Shared Encoder that uses a simple FFN. Given the (batched) grid tensor and meta vectors from the Observation Encoder,
 # produces latent vector representations for use by the Policy or Value heads, by flattening
-# the grid, concatenating it with the meta vector, and passing through two fully connected layers.
+# the grid, concatenating it with the meta vector, and passing through two fully connected layers. We use ReLU and LayerNorm.
 class FFNSharedEncoder(nn.Module):
     
     # Initializes a FFNSharedEncoder with the given input dimension, hidden dimension, and output dimension.

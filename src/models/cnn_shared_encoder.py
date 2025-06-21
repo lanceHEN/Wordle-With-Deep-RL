@@ -20,9 +20,9 @@ class CNNSharedEncoder(nn.Module):
         meta [B, 2]
     Return:
         A fused representation using a set number of convolutions on the grid with specified channels 
-        with relu activation at each step, before flattening and concatenating with the meta vector and passing
-        thru an FFN with 2 hidden layers. Because the FFN is of equivalent design to that in the FFN shared encoder,
-        we actually reuse the FFN forward method here, with ReLU activation and LayerNorm.
+        with relu activation and layer normalization at each step, before flattening and concatenating with the meta vector
+        and passing thru an FFN with 2 hidden layers. Because the FFN is of equivalent design to that in the FFN shared encoder,
+        we actually reuse the FFN forward method here.
     '''
     def __init__(self,
                 in_channels: int = 6,

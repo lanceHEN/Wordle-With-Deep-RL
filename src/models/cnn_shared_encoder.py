@@ -49,7 +49,7 @@ class CNNSharedEncoder(nn.Module):
 
     # Given a batched tensor representing the game grids (word and feedback) of shape [B, max_guesses, word_length, embed_dim]
     # and a batched tensor representing the turn and number of candidates remaining for each batch item of shape [B, 2],
-    # produces latent vector representations (for each batch item) with the given output dimension, shared_output_dim, via CNN. This is done
+    # produces a batch of latent vector representations (for each batch item) with the given output dimension, shared_output_dim, via CNN. This is done
     # by applying convolutions on the grid, before flattening, concatenating with the meta vector, and passing through an FFN.
     def forward(self, grid, meta):
         '''

@@ -2,7 +2,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-# Batching implementation of the Observation Encoder. Given batched observations (as a list), produces per-batched-observation numerical representations
+# Batching implementation of the Observation Encoder. Given batched observations (as a list), produces a batch of per-observation numerical representations
 # friendly for inputs to a neural network
 class ObservationEncoder(nn.Module):
     
@@ -20,11 +20,11 @@ class ObservationEncoder(nn.Module):
         # final per-cell embedding size = letter + feedback dim
         self.embed_dim = self.letter_encoder.letter_embed_dim + self.feedback_dim
 
-    # Given batched observations (as a list), produces numerical representations friendly for inputs to a neural network.
+    # Given batched observations (as a list), produces a batch of per-observation numerical representations friendly for inputs to a neural network.
     # In particular, produces:
     # 1. Grid tensor: a [B x 6 x 5 x letter_embed_dim + 3] tensor, storing letter (learnable embeddings from the given LetterEncoder)
     # and feedback (one hot) data for every position in the game (filled or unfilled), for each in the batch
-    # 2. Meta vector: a [B x 2] tensor storing the current turn and number of candidate words remaining (divided by total vocab size of word/guess list) for the particular
+    # 2. Meta tensor: a [B x 2] tensor storing the current turn and number of candidate words remaining (divided by total vocab size of word/guess list) for each
     # game in the batch.
     # Made in part with generative AI.
     def forward(self, obs_batch):

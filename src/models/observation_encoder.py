@@ -7,9 +7,9 @@ import torch.nn.functional as F
 class ObservationEncoder(nn.Module):
     
     # Initializes an ObservationEncoder with the given LetterEncoder and guess list size.
-    def __init__(self, letter_encoder, num_guesses=14855):
+    def __init__(self, letter_encoder, num_guess_words=14855):
         super().__init__()
-        self.num_guesses = num_guesses
+        self.num_guess_words = num_guess_words
 
         # letter embeddings (learnable)
         self.letter_encoder = letter_encoder
@@ -43,7 +43,7 @@ class ObservationEncoder(nn.Module):
                     letter_tensor[b, t, i] = ord(char) - ord('a')
                     feedback_tensor[b, t, i, fb_map[fb]] = 1.0
             meta_vector[b, 0] = obs["turn_number"]
-            meta_vector[b, 1] = len(obs["valid_indices"]) / self.num_guesses
+            meta_vector[b, 1] = len(obs["valid_indices"]) / self.num_guess_words
 
         letter_embs = self.letter_encoder(letter_tensor)  # [B, 6, 5, embed_dim]
         grid_tensor = torch.cat([letter_embs, feedback_tensor], dim=-1)  # [B, 6, 5, embed_dim + 3]

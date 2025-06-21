@@ -31,7 +31,7 @@ def demo_wordle_game(word, device, model_path):
     view.draw_game()
 
     # Initialize the word encoding matrix.
-    word_encodings = torch.stack([word_to_encoding(w) for w in guess_list]).to(device)  # shape: [vocab_size, 130]
+    word_encodings = torch.stack([word_to_encoding(w) for w in guess_list]).to(device)  # shape: [num_guess_words, 130]
     
     # Load the trained model from pth file.
     checkpoint = torch.load(model_path)

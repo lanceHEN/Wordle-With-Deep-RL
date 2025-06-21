@@ -17,7 +17,7 @@ guess_list = answer_list
 # guess_list = load_word_list('data/5_letter_words.txt')[:] # uncomment to use all 14,855 guess words
 
 # Load word encoding matrix
-word_encodings = torch.stack([word_to_encoding(w) for w in guess_list]).to(device)  # shape: [num_guesses, 130]
+word_encodings = torch.stack([word_to_encoding(w) for w in guess_list]).to(device)  # shape: [num_guess_words, 130]
 
 # Load model
 actor_critic = WordleActorCritic().to(device)

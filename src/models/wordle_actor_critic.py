@@ -5,7 +5,7 @@ from models.policy_head import PolicyHead
 from models.value_head import ValueHead
 
 # Wrapper that combines the functionality of all individual components into one, such that given an observation batch (list of observations), it will produce:
-# 1. Logits over each action (word) for each batch state, i.e. the policy outputs - # [B, num_guesses]
+# 1. Logits over each action (word) for each batch state, i.e. the policy outputs - # [B, num_guess_words]
 # 2. Value predictions, i.e. the value outputs, for each state in the batch - [B]
 # For convenience, none of the components need to be given on construction, i.e. any component set to none will be instantiated with
 # default parameters.
@@ -25,8 +25,8 @@ class WordleActorCritic(nn.Module):
         else:
             self.value_head = ValueHead()
 
-    # Given an observation batch (list of observations), and word encodings (shape [num_guesses, 130), produces two outputs:
-    # 1. Logits over each action (word), i.e. the policy outputs, for each state in the batch - # [B, num_guesses]
+    # Given an observation batch (list of observations), and word encodings (shape [num_guess_words, 130), produces two outputs:
+    # 1. Logits over each action (word), i.e. the policy outputs, for each state in the batch - # [B, num_guess_words]
     # 2. Value predictions, i.e. the value outputs, for each state in the batch - [B]
     def forward(self, obs_batch, word_encodings):
         device = next(self.parameters()).device
@@ -36,17 +36,17 @@ class WordleActorCritic(nn.Module):
         query = self.policy_head(h)  # [B, 130]
         
         # Compute logits via dot product with all word embeddings
-        logits = query @ word_encodings.T  # [B, num_guesses]
+        logits = query @ word_encodings.T  # [B, num_guess_words]
 
         # Create a mask for invalid indices
-        batch_size, num_guesses = logits.shape
-        mask = torch.ones(batch_size, num_guesses, dtype=torch.bool, device=device)
+        batch_size, num_guess_words = logits.shape
+        mask = torch.ones(batch_size, num_guess_words, dtype=torch.bool, device=device)
         for i, valid_idx in enumerate(valid_indices_batch):
             mask[i, valid_idx] = False  # these are VALID indices, so mask should be False here
 
         # Apply mask
         mask_float = torch.where(mask, float('-inf'), 0.0)
-        masked_logits = logits + mask_float # [B, num_guesses]
+        masked_logits = logits + mask_float # [B, num_guess_words]
         
         values = self.value_head(h).squeeze(-1)  # [B]
         return masked_logits, values

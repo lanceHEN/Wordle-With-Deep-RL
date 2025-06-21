@@ -40,7 +40,7 @@ Our implementation supports training with either a feedforward network (FFN) or 
 │   ├── 5_letter_answers.txt # All 2,315 Wordle answers, in alphabetical order
 │   ├── 5_letter_answers_shuffled.txt # All 2,315 Wordle answers, in random order
 │   └── 5_letter_words.txt # All 14,855 Wordle guesses
-└── src # Directory containing the implementation of the agent and environment
+└── src # Directory containing the implementation of the agent, game, and environment
     ├── demo_script.py # Demonstrates a model on a visual Wordle game
     ├── envs
     │   ├── __init__.py

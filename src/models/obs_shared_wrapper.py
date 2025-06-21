@@ -3,7 +3,7 @@ from models.observation_encoder import ObservationEncoder
 from models.ffn_shared_encoder import FFNSharedEncoder
 from models.letter_encoder import LetterEncoder
 
-# Wrapper class that combines the ObservationEncoder and Shared Encoder modules into one, allowing batched latent vectors to be produced
+# Wrapper class that combines the ObservationEncoder and Shared Encoder modules into one, allowing a batch of latent vectors to be produced
 # when given batched observations.
 # This can then be combined with either a PolicyHead or ValueHead.
 # For convenience, the ObservationEncoder and Shared Encoder do not have to be given on construction, they can be made on construction
@@ -22,7 +22,7 @@ class ObservationSharedWrapper(nn.Module):
         else:
             self.shared_encoder = shared_encoder
         
-    # Given batched observations, produces batched latent vector representations to be fed either into policy head or value head.
+    # Given batched observations, produces a batch of latent vector representations to be fed either into policy head or value head.
     # In other words, this combines the forward pass for ObservationEncoder and SharedEncoder.
     def forward(self, batched_obs):
         # batched_obs: [B x 6 x 5 x letter_embed_dim + 3]

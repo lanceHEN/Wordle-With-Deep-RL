@@ -3,7 +3,7 @@ import torch.nn.functional as F
 
 # Given a lowercase letter, produces rich embeddings with the given dimension,
 # where similar letters will have similar vector representations.
-# This is useful encoding the state by taking embeddings for each guessed letter (and concat with feedback).
+# This is useful for encoding the state by taking embeddings for each guessed letter (and concat with feedback).
 # Note although this is esssentially an nn.Embedding, it is still its own class in case one would like to
 # produce word embeddings using letter embeddings later on.
 class LetterEncoder(nn.Module):

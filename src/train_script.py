@@ -7,7 +7,7 @@ import torch
 from collections import deque
 
 # Set the device
-device = torch.device("mps")
+device = torch.device("cpu")
 
 # Load the answer list and guess list
 # We find only allowing possible answers as guesses dramatically speeds up training
@@ -17,7 +17,7 @@ guess_list = answer_list
 # guess_list = load_word_list('data/5_letter_words.txt')[:] # uncomment to use all 14,855 guess words
 
 # Load word encoding matrix
-word_encodings = torch.stack([word_to_encoding(w) for w in guess_list]).to(device)  # shape: [vocab_size, 130]
+word_encodings = torch.stack([word_to_encoding(w) for w in guess_list]).to(device)  # shape: [num_guesses, 130]
 
 # Load model
 actor_critic = WordleActorCritic().to(device)

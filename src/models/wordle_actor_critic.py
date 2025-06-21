@@ -36,7 +36,7 @@ class WordleActorCritic(nn.Module):
         query = self.policy_head(h)  # [B, 130]
         
         # Compute logits via dot product with all word embeddings
-        logits = query @ word_encodings.T  # [B, vocab_size]
+        logits = query @ word_encodings.T  # [B, num_guesses]
 
         # Create a mask for invalid indices
         batch_size, vocab_size = logits.shape
@@ -46,7 +46,7 @@ class WordleActorCritic(nn.Module):
 
         # Apply mask
         mask_float = torch.where(mask, float('-inf'), 0.0)
-        masked_logits = logits + mask_float # [B, vocab_size]
+        masked_logits = logits + mask_float # [B, num_guesses]
         
         values = self.value_head(h).squeeze(-1)  # [B]
         return masked_logits, values

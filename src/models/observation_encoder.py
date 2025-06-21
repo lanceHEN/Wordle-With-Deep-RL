@@ -6,10 +6,10 @@ import torch.nn.functional as F
 # friendly for inputs to a neural network
 class ObservationEncoder(nn.Module):
     
-    # Initializes an ObservationEncoder with the given LetterEncoder and vocab size.
-    def __init__(self, letter_encoder, vocab_size=14855):
+    # Initializes an ObservationEncoder with the given LetterEncoder and guess list size.
+    def __init__(self, letter_encoder, num_guesses=14855):
         super().__init__()
-        self.vocab_size = vocab_size
+        self.num_guesses = num_guesses
 
         # letter embeddings (learnable)
         self.letter_encoder = letter_encoder
@@ -24,7 +24,7 @@ class ObservationEncoder(nn.Module):
     # In particular, produces:
     # 1. Grid tensor: a [B x 6 x 5 x letter_embed_dim + 3] tensor, storing letter (learnable embeddings from the given LetterEncoder)
     # and feedback (one hot) data for every position in the game (filled or unfilled), for each in the batch
-    # 2. Meta tensor: a [B x 2] tensor storing the current turn and number of candidate words remaining (divided by total vocab size of word/guess list) for each
+    # 2. Meta tensor: a [B x 2] tensor storing the current turn and number of candidate words remaining (divided by total size of guess list) for each
     # game in the batch.
     # Made in part with generative AI.
     def forward(self, obs_batch):
@@ -43,7 +43,7 @@ class ObservationEncoder(nn.Module):
                     letter_tensor[b, t, i] = ord(char) - ord('a')
                     feedback_tensor[b, t, i, fb_map[fb]] = 1.0
             meta_vector[b, 0] = obs["turn_number"]
-            meta_vector[b, 1] = len(obs["valid_indices"]) / self.vocab_size
+            meta_vector[b, 1] = len(obs["valid_indices"]) / self.num_guesses
 
         letter_embs = self.letter_encoder(letter_tensor)  # [B, 6, 5, embed_dim]
         grid_tensor = torch.cat([letter_embs, feedback_tensor], dim=-1)  # [B, 6, 5, embed_dim + 3]

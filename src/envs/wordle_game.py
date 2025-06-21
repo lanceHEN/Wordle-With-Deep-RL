@@ -9,7 +9,7 @@ class WordleGame:
         Args:
             guess_list (list): List of guess words.
             answer_list (list): List of possible answers.
-            word (str, optional): The word to guess (for testing).
+            word (str, optional): The word to guess.
         '''
         self.guess_list = guess_list
         self.answer_list = answer_list

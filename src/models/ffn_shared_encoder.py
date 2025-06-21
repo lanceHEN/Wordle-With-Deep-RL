@@ -1,9 +1,9 @@
 import torch
 import torch.nn as nn
 
-# Variation of Shared Encoder that uses a simple FFN. Given the (batched) grid tensor and meta vectors from the Observation Encoder,
+# Variation of Shared Encoder that uses a simple FFN. Given the (batched) grid tensor and (batched) meta tensor from the Observation Encoder,
 # produces latent vector representations for use by the Policy or Value heads, by flattening
-# the grid, concatenating it with the meta vector, and passing through two fully connected layers. We use ReLU and LayerNorm.
+# the grid, concatenating it with the meta tensor, and passing through two fully connected layers. We use ReLU and LayerNorm.
 class FFNSharedEncoder(nn.Module):
     
     # Initializes a FFNSharedEncoder with the given input dimension, hidden dimension, and output dimension.
@@ -19,8 +19,8 @@ class FFNSharedEncoder(nn.Module):
             nn.ReLU(inplace=False)
         )
     
-    # Given batched 3d tensors representing the game grids (word and feedback) of shape [B, max_guesses, word_length, embed_dim]
-    # and batched 1d meta tensors representing the turn and number of candidates remaining for each batch item of shape [B, 2],
+    # Given a batched tensor representing the game grids (word and feedback) of shape [B, max_guesses, word_length, embed_dim]
+    # and a batched meta tensor representing the turn and number of candidates remaining for each batch item of shape [B, 2],
     # produces latent vector representations (for each batch item) with the given output dimension, shared_output_dim, by
     # first flattening the grid, concatenating it with the meta tensor, and passing thru the 2-layer FFN.
     def forward(self, grid, meta):

@@ -21,7 +21,8 @@ class FFNSharedEncoder(nn.Module):
     
     # Given batched 3d tensors representing the game grids (word and feedback) of shape [B, max_guesses, word_length, embed_dim]
     # and batched 1d meta tensors representing the turn and number of candidates remaining for each batch item of shape [B, 2],
-    # produces latent vector representations (for each batch item) with the given output dimension, shared_output_dim.
+    # produces latent vector representations (for each batch item) with the given output dimension, shared_output_dim, by
+    # first flattening the grid, concatenating it with the meta tensor, and passing thru the 2-layer FFN.
     def forward(self, grid, meta):
         B = grid.shape[0]
         flat_grid = grid.view(B, -1)  # [B, 6 * 5 * embed_dim]

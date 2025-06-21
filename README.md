@@ -1,6 +1,6 @@
 # Solving Wordle with Deep RL
 
-This repository contains the codebase for a deep reinforcement learning (RL) agent that learns to solve Wordle in as few guesses as possible using Proximal Policy Optimization (PPO). The project treats Wordle as an MDP with different rewards for winning, losing, or making incorrect guesses, and experiments with various architectures to boost performance.
+This repository contains the codebase for a deep reinforcement learning (RL) agent that learns to solve Wordle in as few guesses as possible using Proximal Policy Optimization (PPO). The project treats Wordle as a Markov Decision Process (MDP) with different rewards for winning, losing, or making incorrect guesses, and experiments with various architectures to boost performance.
 
 ## Methodology Overview
 

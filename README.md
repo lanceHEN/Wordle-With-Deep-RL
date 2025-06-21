@@ -161,7 +161,7 @@ To begin training, navigate to `src/train_script.py` and configure your device, 
 You can then list directories for model checkpoints and tensorboard logging, and uncomment the following lines as needed to load checkpoints later on. The final line will run the training loop, with plenty of options to play with like number of epochs, batch size, FIFO threshold, etc.
 
 ### Evaluate the Agent!
-You can then evaluate the trained agent across all possible answers by running `evaluate_policy_on_all_answers` from ` src/eval/eval.py`, printing and returning average number of guesses and win rate.
+You can then evaluate the trained agent across all possible answers by running `evaluate_policy_on_all_answers` from ` src/eval/evaluate_policy.py`, printing and returning average number of guesses and win rate.
 
 ## Future Work
 - Not limiting the model to strictly valid words.

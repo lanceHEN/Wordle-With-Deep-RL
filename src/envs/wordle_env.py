@@ -27,7 +27,7 @@ class WordleEnv:
         self.answer_list = answer_list
         self.game = None
         self.candidate_words = [] # list of answer words consistent with feedback
-        self.word_to_idx = {word: i for i, word in enumerate(guess_list)} # translates a word to an integer index, useful for one-hot
+        self.word_to_idx = {word: i for i, word in enumerate(guess_list)} # translates a word to an integer index, useful for getting candidate indices
         self.win_reward = win_reward
         self.lose_reward = lose_reward
 
@@ -35,7 +35,7 @@ class WordleEnv:
         '''
         Resets the environment with a brand new game by starting a new episode
         Args:
-            word: optional secret word for testing
+            word: optional secret word
         Returns:
             The initial observation
         '''
@@ -46,7 +46,7 @@ class WordleEnv:
     def step(self, guess: str):
         '''
         Takes a step in the environment to make an action by trying a guess. 
-        Rewards are +20 for winning, -10 for losing, and -1 otherwise
+        Rewards are the given positive win reward for winning, the given negative lose reward for losing, and -1 otherwise.
         Args:
             guess: 5-letter word guess
         Returns:
@@ -81,8 +81,6 @@ class WordleEnv:
         
         return obs, reward, done
     
-    
-    # Other implementation: creating a mask
     def _get_obs(self):
         '''
         Gets an observation of the current env state, compiled into a model-friendly structure

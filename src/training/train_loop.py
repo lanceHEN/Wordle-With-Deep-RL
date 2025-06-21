@@ -12,8 +12,8 @@ from collections import deque
 
 
 # Main training loop for PPO applied to Wordle.
-# Trains the model for the specified number of epochs, at each epoch collecting trajectories from the batched environments, and applying PPO updates
-# also periodically (every eval_and_save_per epochs) prints out and saves to tensorboard the success rate, and average number of guesses, and also saves the model.
+# Trains the model for the specified number of epochs, at each epoch collecting trajectories from the batched environments, and applying PPO updates.
+# Also periodically (every eval_and_save_per epochs) prints out and saves to tensorboard the success rate, and average number of guesses, and also saves the model.
 # This also includes a FIFO queue, used for concentrating the model on challenging words - words which take fifo_threshold or more guesses.
 # No more than fifo_percentage of the total number of guesses is set aside for words in the FIFO queue.
 # Made in part with generative AI.
@@ -23,7 +23,7 @@ def training_loop(
     optimizer, # optimizer
     guess_list, # list of all words that can be used as guesses
     answer_list, # list of all words that can be used as answers
-    word_encodings, # one hot embeddings for every word in guess_list, as a [len(guess_list), 130] torch tensor
+    word_encodings, # encodings for every word in guess_list, as a [len(guess_list), 130] torch tensor
     save_dir, # directory to save the model parameters
     log_dir, # directory to save tensorboard logs
     num_epochs=300, # number of overall epochs

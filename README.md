@@ -60,7 +60,7 @@ Our implementation supports training with either a feedforward network (FFN) or 
     │   ├── observation_encoder.py # The Observation Encoder
     │   ├── policy_head.py # The Policy Head
     │   ├── value_head.py # The Value Head
-    │   ├── wordle_actor_critic.py # A wrapper around each component of the model architecture, which produces logits and values when given batched observations
+    │   ├── wordle_actor_critic.py # A wrapper around each component of the model architecture, which produces logits and predicted values when given batched observations
     │   └── wordle_model_wrapper.py # A wrapper around a WordleActorCritic, which simply produces a human-readable guess any time it's given an observation
     ├── train_script.py # A script to train the model
     ├── training # A directory for PPO training implementation

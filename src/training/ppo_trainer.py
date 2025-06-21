@@ -3,7 +3,7 @@ import torch.nn.functional as F
 
 # Made in part with generative AI.
 def ppo_update(
-    actor_critic, # ActorCritic model
+    actor_critic, # WordleActorCritic model
     optimizer, # optimizer
     observations, # list of observations
     actions, # list of actions (indices for the guess list)

@@ -5,6 +5,8 @@ from models.wordle_actor_critic import WordleActorCritic
 # guess list and word encodings and producing a guess word whenever given a particular
 # observation. This is useful for actually playing the game in an interpretable manner (e.g. interacting with WordleView).
 class ModelWrapper:
+    
+    # A model does not need to be specified on construction - if not specified, it is created with default params.
     def __init__(self, guess_list, word_encodings, model=None, device='cpu'):
         if model is None:
             self.model = WordleActorCritic().to(device)

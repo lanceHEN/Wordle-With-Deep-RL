@@ -13,7 +13,7 @@ class ObservationSharedWrapper(nn.Module):
     def __init__(self, observation_encoder=None, shared_encoder=None):
         super().__init__()
         if observation_encoder is None:
-            self.observation_encoder = ObservationEncoder(LetterEncoder())
+            self.observation_encoder = ObservationEncoder()
         else:
             self.observation_encoder = observation_encoder
         

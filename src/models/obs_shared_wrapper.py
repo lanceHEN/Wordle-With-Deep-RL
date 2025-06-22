@@ -24,7 +24,8 @@ class ObservationSharedWrapper(nn.Module):
         
     # Given batched observations (as a list), produces a batch of latent vector representations to be fed either into policy head or value head.
     # In other words, this combines the forward pass for ObservationEncoder and SharedEncoder.
+    # The output has shape [B, shared_output_dim], where shared_output_dim is the output dimension of the SharedEncoder.
     def forward(self, batched_obs):
         encoded_grid, meta_tensor = self.observation_encoder(batched_obs)
         h = self.shared_encoder(encoded_grid, meta_tensor)
-        return h # [B, output_dim]
+        return h # [B, shared_output_dim]

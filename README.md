@@ -123,7 +123,7 @@ device = torch.device("cpu") # Change as needed.
 
 Next, we need to initialize the word encoding matrix:
 ```python
-word_encodings = torch.stack([word_to_encoding(w) for w in guess_list]).to(device)  # shape: [vocab_size, 130]
+word_encodings = torch.stack([word_to_encoding(w) for w in guess_list]).to(device)  # shape: [num_guess_words, 130]
 ```
 
 Next, we neet to initialize the model. You could initialize each component individually and pass them into the ```WordleActorCritic``` constructor, but for simplicity here we can make the object without specifying them:

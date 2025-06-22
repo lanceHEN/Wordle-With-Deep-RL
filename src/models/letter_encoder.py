@@ -21,4 +21,4 @@ class LetterEncoder(nn.Module):
         device = self.letter_embed.weight.device # fetch device of embedding weights for consistency
         letter_vec = self.letter_embed(letter_idx.to(device))
         
-        return letter_vec
+        return letter_vec # [self.letter_embed_dim]

@@ -19,7 +19,7 @@ class CNNSharedEncoder(nn.Module):
         grid [B, 6, 5, embed_dim]
         meta [B, 2]
     Return:
-        A fused representation using a set number of convolutions on the grid with specified channels 
+        [B, shared_output_dim]: A fused representation using a set number of convolutions on the grid with specified channels 
         with relu activation at each step, before flattening and concatenating with the meta vector
         and passing thru an FFN with 2 hidden layers. Because the FFN is of equivalent design to that in the FFN shared encoder,
         we actually reuse the FFN forward method here, which uses layer normalization, and also uses relu.
@@ -49,8 +49,8 @@ class CNNSharedEncoder(nn.Module):
 
     # Given a batched tensor representing the game grids (word and feedback) of shape [B, max_guesses, word_length, embed_dim]
     # and a batched tensor representing the turn and number of candidates remaining for each batch item of shape [B, 2],
-    # produces a batch of latent vector representations (for each batch item) with the given output dimension, shared_output_dim, via CNN. This is done
-    # by applying convolutions on the grid, before flattening, concatenating with the meta vector, and passing through an FFN.
+    # produces a batch of latent vector representations (for each batch item) with has the overall output dimension, [B, shared_output_dim],
+    # via CNN. This is done by applying convolutions on the grid, before flattening, concatenating with the meta vector, and passing through an FFN.
     def forward(self, grid, meta):
         '''
         Returns a fused latent vector for each batch element.

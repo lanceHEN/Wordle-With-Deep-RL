@@ -1,18 +1,19 @@
 import torch
 import torch.nn as nn
-import torch.nn.functional as F
+from models.letter_encoder import LetterEncoder
 
 # Batching implementation of the Observation Encoder. Given batched observations (as a list), produces a batch of per-observation numerical representations
 # friendly for inputs to a neural network
 class ObservationEncoder(nn.Module):
     
-    # Initializes an ObservationEncoder with the given LetterEncoder and guess list size.
-    def __init__(self, letter_encoder, num_guess_words=14855):
+    # Initializes an ObservationEncoder with a LetterEncoder and guess list size. The LetterEncoder can optionally be left unspecified,
+    # and created with default params on construction.
+    def __init__(self, letter_encoder=None, num_guess_words=14855):
         super().__init__()
         self.num_guess_words = num_guess_words
 
         # letter embeddings (learnable)
-        self.letter_encoder = letter_encoder
+        self.letter_encoder = letter_encoder if letter_encoder is not None else LetterEncoder()
 
         # feedback will be one-hot, size 3: ("gray", "yellow", "green")
         self.feedback_dim = 3

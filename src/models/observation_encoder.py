@@ -23,7 +23,8 @@ class ObservationEncoder(nn.Module):
     # Given batched observations (as a list), produces a batch of per-observation numerical representations friendly for inputs to a neural network.
     # In particular, produces:
     # 1. Grid tensor: a [B x 6 x 5 x letter_embed_dim + 3] tensor, storing letter (learnable embeddings from the given LetterEncoder)
-    # and feedback (one hot) data for every position in the game (filled or unfilled), for each in the batch
+    # and feedback (one hot) data for every position in the game (filled or unfilled), for each in the batch. Rows for unfilled guesses have
+    # all elements set to 0, to maintain constant dimensions.
     # 2. Meta tensor: a [B x 2] tensor storing the current turn and number of candidate words remaining (divided by total size of guess list) for each
     # game in the batch.
     # Made in part with generative AI.
@@ -33,7 +34,7 @@ class ObservationEncoder(nn.Module):
     
         letter_tensor = torch.zeros((batch_size, 6, 5), dtype=torch.long, device=device)
         feedback_tensor = torch.zeros((batch_size, 6, 5, self.feedback_dim), dtype=torch.float32, device=device)
-        meta_vector = torch.zeros((batch_size, 2), dtype=torch.float32, device=device)
+        meta_vector = torch.zeros((batch_size, 2), dtype=torch.float32, device=device) # [B, 2]
     
         fb_map = {"gray": 0, "yellow": 1, "green": 2}
     
